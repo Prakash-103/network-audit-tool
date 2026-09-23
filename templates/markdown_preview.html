@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ company }} — Markdown Deliverable Preview</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-canvas: #f8fafc;
+            --bg-sheet: #ffffff;
+            --text-main: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --border-medium: #cbd5e1;
+            --primary-navy: #0f172a;
+            --accent-blue: #2563eb;
+            --accent-hover: #1d4ed8;
+            --success-color: #16a34a;
+            --danger-color: #dc2626;
+            --warning-color: #d97706;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-canvas);
+            color: var(--text-main);
+            line-height: 1.5;
+            font-size: 13.5px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Sticky Floating Deliverable Toolbar */
+        .preview-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-medium);
+            padding: 8px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toolbar-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge-type {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-scope {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid var(--border-medium);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.72rem;
+        }
+
+        .badge-stats {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* View Mode Switcher Pill */
+        .view-switcher {
+            display: inline-flex;
+            background: #f1f5f9;
+            border: 1px solid var(--border-medium);
+            border-radius: 6px;
+            padding: 2px;
+            gap: 2px;
+        }
+
+        .switcher-btn {
+            background: transparent;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .switcher-btn.active {
+            background: #ffffff;
+            color: var(--primary-navy);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Action Buttons */
+        .toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn {
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary-navy);
+            color: #ffffff;
+            border-color: var(--primary-navy);
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text-secondary);
+            border-color: var(--border-medium);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            color: var(--text-main);
+            border-color: var(--border-light);
+        }
+
+        /* Main Content Container */
+        .preview-body {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .doc-sheet {
+            width: 100%;
+            max-width: 960px;
+            background: var(--bg-sheet);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 40px 48px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Formatted Markdown Typography */
+        .md-rendered h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-navy);
+            margin-bottom: 6px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-navy);
+        }
+
+        .md-rendered h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-top: 24px;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .md-rendered h3 {
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+
+        .md-rendered p {
+            margin-bottom: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .md-rendered blockquote {
+            border-left: 4px solid var(--accent-blue);
+            background: #f8fafc;
+            padding: 10px 16px;
+            border-radius: 0 4px 4px 0;
+            margin: 14px 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .md-rendered hr {
+            border: none;
+            border-top: 1px solid var(--border-light);
+            margin: 22px 0;
+        }
+
+        .md-rendered ul, .md-rendered ol {
+            margin: 12px 0 16px 24px;
+            color: var(--text-secondary);
+        }
+
+        .md-rendered li {
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+
+        /* Markdown Tables */
+        .md-rendered table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            font-size: 0.84rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .md-rendered th {
+            background: #f1f5f9;
+            color: var(--primary-navy);
+            font-weight: 700;
+            padding: 9px 12px;
+            border: 1px solid var(--border-light);
+            text-align: left;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .md-rendered td {
+            padding: 8px 12px;
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        .md-rendered tr:nth-child(even) td {
+            background: #fcfdfe;
+        }
+
+        .md-rendered tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* Code & Pre */
+        .md-rendered code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .md-rendered pre {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 14px 18px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid #334155;
+        }
+
+        .md-rendered pre code {
+            background: transparent;
+            color: inherit;
+            border: none;
+            padding: 0;
+            font-size: 0.82rem;
+        }
+
+        /* Severity and Status Tag styling */
+        .tag-pass { background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 0.72rem; }
+        .tag-fail { background: #fee2e2; color: #b91c1c; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 0.72rem; }
+        .tag-warn { background: #fef3c7; color: #b45309; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 0.72rem; }
+
+        /* Raw Source Container */
+        .raw-container {
+            display: none;
+            width: 100%;
+        }
+
+        .raw-textarea {
+            width: 100%;
+            height: 78vh;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            background: #0f172a;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 16px;
+            resize: vertical;
+            white-space: pre-wrap;
+            word-break: break-word;
+            tab-size: 2;
+        }
+
+        /* Copy toast notification */
+        .copy-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+            border: 1px solid #334155;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Deliverable Control Toolbar -->
+    <div class="preview-toolbar">
+        <div class="toolbar-info">
+            <span class="badge-type">📄 Markdown (.md)</span>
+            <span class="badge-scope">{{ 'Critical & High Only' if scope == 'critical' else 'Full Infrastructure' }}</span>
+            <span class="badge-stats">{{ line_count }} lines &bull; {{ word_count }} words</span>
+        </div>
+
+        <div class="view-switcher">
+            <button id="btnViewRendered" class="switcher-btn active" onclick="switchView('rendered')">
+                👁️ Formatted View
+            </button>
+            <button id="btnViewRaw" class="switcher-btn" onclick="switchView('raw')">
+                ⌨️ Raw Source
+            </button>
+        </div>
+
+        <div class="toolbar-actions">
+            <button class="btn btn-secondary" onclick="copyMarkdownText()" title="Copy raw markdown to clipboard">
+                📋 Copy Markdown
+            </button>
+            <a href="/api/export/executive/md?download=1&scope={{ scope }}" class="btn btn-primary" title="Download .md file">
+                📥 Download .md
+            </a>
+            <button class="btn btn-secondary" onclick="switchToHtmlView()" title="Switch to HTML / Web View">
+                👁️ HTML View
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Presentation -->
+    <div class="preview-body">
+        <div class="doc-sheet">
+            <!-- Formatted Markdown Tab -->
+            <div id="renderedContainer" class="md-rendered">
+                <!-- Injected by Markdown Renderer -->
+            </div>
+
+            <!-- Raw Source Tab -->
+            <div id="rawContainer" class="raw-container">
+                <textarea id="rawMarkdownText" class="raw-textarea" readonly>{{ md_text }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Raw Markdown Data Store for Parsing -->
+    <script id="rawMarkdownData" type="text/markdown">{{ md_text }}</script>
+
+    <!-- Copy Toast Indicator -->
+    <div id="copyToast" class="copy-toast">
+        <span>✓</span> Copied Markdown to clipboard!
+    </div>
+
+    <script>
+        // High-fidelity Markdown-to-HTML rendering
+        function renderMarkdown() {
+            const raw = document.getElementById('rawMarkdownData').textContent || '';
+            const container = document.getElementById('renderedContainer');
+            
+            // Priority 1: Use marked.js if available
+            if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
+                try {
+                    container.innerHTML = marked.parse(raw);
+                    highlightBadges(container);
+                    return;
+                } catch (e) {
+                    console.warn('marked.js parse failed, falling back to embedded parser:', e);
+                }
+            }
+
+            // Priority 2: Robust Embedded Fallback Markdown Parser
+            container.innerHTML = fallbackMarkdownParser(raw);
+            highlightBadges(container);
+        }
+
+        // Lightweight self-contained fallback parser for offline/air-gapped environments
+        function fallbackMarkdownParser(md) {
+            const lines = md.split('\n');
+            let html = [];
+            let inTable = false;
+            let inCodeBlock = false;
+            let tableRows = [];
+
+            function flushTable() {
+                if (!inTable) return;
+                html.push('<table>');
+                tableRows.forEach((row, idx) => {
+                    const tag = (idx === 0) ? 'th' : 'td';
+                    html.push('<tr>' + row.map(c => `<${tag}>${formatInline(c.trim())}</${tag}>`).join('') + '</tr>');
+                });
+                html.push('</table>');
+                tableRows = [];
+                inTable = false;
+            }
+
+            for (let line of lines) {
+                // Code block toggle
+                if (line.trim().startsWith('```')) {
+                    if (inTable) flushTable();
+                    if (inCodeBlock) {
+                        html.push('</code></pre>');
+                        inCodeBlock = false;
+                    } else {
+                        html.push('<pre><code>');
+                        inCodeBlock = true;
+                    }
+                    continue;
+                }
+
+                if (inCodeBlock) {
+                    html.push(escapeHtml(line) + '\n');
+                    continue;
+                }
+
+                // Table parsing
+                if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+                    const cells = line.trim().slice(1, -1).split('|');
+                    // Check if it's a separator line | :--- | :--- |
+                    if (cells.every(c => c.trim().match(/^:?-+:?$/))) {
+                        continue; // Skip separator row
+                    }
+                    inTable = true;
+                    tableRows.push(cells);
+                    continue;
+                } else if (inTable) {
+                    flushTable();
+                }
+
+                // Empty line
+                if (!line.trim()) {
+                    continue;
+                }
+
+                // Headings
+                if (line.startsWith('# ')) {
+                    html.push(`<h1>${formatInline(line.slice(2))}</h1>`);
+                } else if (line.startsWith('## ')) {
+                    html.push(`<h2>${formatInline(line.slice(3))}</h2>`);
+                } else if (line.startsWith('### ')) {
+                    html.push(`<h3>${formatInline(line.slice(4))}</h3>`);
+                } else if (line.startsWith('> ')) {
+                    html.push(`<blockquote>${formatInline(line.slice(2))}</blockquote>`);
+                } else if (line.trim() === '---' || line.trim() === '***') {
+                    html.push('<hr>');
+                } else if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+                    html.push(`<ul><li>${formatInline(line.trim().slice(2))}</li></ul>`);
+                } else {
+                    html.push(`<p>${formatInline(line)}</p>`);
+                }
+            }
+
+            if (inTable) flushTable();
+            if (inCodeBlock) html.push('</code></pre>');
+
+            return html.join('\n');
+        }
+
+        function formatInline(str) {
+            return escapeHtml(str)
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>');
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Apply high-visibility badges to status keywords
+        function highlightBadges(container) {
+            container.querySelectorAll('td, strong, em').forEach(el => {
+                const text = el.textContent.trim();
+                if (text === 'COMPLIANT' || text === 'PASS') {
+                    el.innerHTML = `<span class="tag-pass">${text}</span>`;
+                } else if (text === 'NON-COMPLIANT' || text === 'FAIL' || text === 'CRITICAL') {
+                    el.innerHTML = `<span class="tag-fail">${text}</span>`;
+                } else if (text === 'WARNING' || text === 'HIGH') {
+                    el.innerHTML = `<span class="tag-warn">${text}</span>`;
+                }
+            });
+        }
+
+        // Tab Switching Logic
+        function switchView(mode) {
+            const btnRendered = document.getElementById('btnViewRendered');
+            const btnRaw = document.getElementById('btnViewRaw');
+            const renderedDiv = document.getElementById('renderedContainer');
+            const rawDiv = document.getElementById('rawContainer');
+
+            if (mode === 'raw') {
+                btnRaw.classList.add('active');
+                btnRendered.classList.remove('active');
+                renderedDiv.style.display = 'none';
+                rawDiv.style.display = 'block';
+            } else {
+                btnRendered.classList.add('active');
+                btnRaw.classList.remove('active');
+                renderedDiv.style.display = 'block';
+                rawDiv.style.display = 'none';
+            }
+        }
+
+        // Clipboard Copy with Toast Feedback
+        function copyMarkdownText() {
+            const raw = document.getElementById('rawMarkdownData').textContent || '';
+            navigator.clipboard.writeText(raw).then(() => {
+                const toast = document.getElementById('copyToast');
+                toast.style.display = 'flex';
+                setTimeout(() => { toast.style.display = 'none'; }, 2200);
+            }).catch(err => {
+                alert('Copied using fallback method');
+            });
+        }
+
+        // Switch to HTML View inside Parent Modal
+        function switchToHtmlView() {
+            if (window.parent && typeof window.parent.switchReportFormat === 'function') {
+                window.parent.switchReportFormat('html');
+            } else {
+                window.location.href = '/api/export/executive/html';
+            }
+        }
+
+        // Auto-run on load
+        document.addEventListener('DOMContentLoaded', renderMarkdown);
+    </script>
+</body>
+</html>

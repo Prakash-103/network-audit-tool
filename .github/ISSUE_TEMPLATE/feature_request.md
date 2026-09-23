@@ -1,0 +1,28 @@
+---
+name: Feature request
+about: Suggest an idea or architectural improvement for this project
+title: '[FEAT] '
+labels: enhancement
+assignees: ''
+---
+
+**Is your feature request related to a problem? Please describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+
+**Describe the Solution You'd Like**
+A clear and concise description of what you want to happen.
+
+**Audit Domain or Layer (if applicable)**
+- [ ] Device Discovery & Inventory
+- [ ] Layer 2 Switching (VLAN / STP / Trunk)
+- [ ] Layer 3 Routing (OSPF / BGP / Static)
+- [ ] Security & Firewalls
+- [ ] Wireless Infrastructure
+- [ ] Executive Reporting & Export (Excel / HTML / JSON)
+- [ ] Other
+
+**Describe Alternatives You've Considered**
+A clear and concise description of any alternative solutions or features you've considered.
+
+**Additional Context**
+Add any other context, screenshots, or RFC/vendor documentation references here.

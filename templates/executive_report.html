@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ metrics.customer_name }} — Executive Infrastructure Audit Report</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+    <style>
+        :root {
+            /* Formal White-Background Executive Palette */
+            --bg-body: #f8fafc;
+            --bg-sheet: #ffffff;
+            --bg-card: #ffffff;
+            --bg-surface: #f8fafc;
+            --bg-surface-subtle: #f1f5f9;
+            
+            --text-main: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --text-dim: #94a3b8;
+
+            --border-light: #e2e8f0;
+            --border-medium: #cbd5e1;
+            --border-strong: #94a3b8;
+            
+            --primary-navy: #0f172a;
+            --primary-blue: #1e40af;
+            --accent-blue: #2563eb;
+            --accent-subtle: #eff6ff;
+
+            /* High-Contrast Severity & Status Tokens for White Background */
+            --danger-text: #991b1b;
+            --danger-bg: #fef2f2;
+            --danger-border: #fca5a5;
+            --danger-accent: #dc2626;
+
+            --warning-text: #92400e;
+            --warning-bg: #fffbeb;
+            --warning-border: #fde68a;
+            --warning-accent: #d97706;
+
+            --info-text: #0369a1;
+            --info-bg: #f0f9ff;
+            --info-border: #7dd3fc;
+            --info-accent: #0284c7;
+
+            --success-text: #166534;
+            --success-bg: #f0fdf4;
+            --success-border: #86efac;
+            --success-accent: #16a34a;
+
+            --radius-lg: 8px;
+            --radius-md: 6px;
+            --radius-sm: 4px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.45;
+            margin: 0;
+            padding: 0;
+            font-size: 13.5px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Floating Navigation Toolbar (Screen Only) */
+        .report-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-medium);
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .toolbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--primary-navy);
+            letter-spacing: -0.2px;
+        }
+
+        .toolbar-brand .badge-tag {
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid var(--border-medium);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary-navy);
+            color: #ffffff;
+            border-color: var(--primary-navy);
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text-secondary);
+            border-color: var(--border-medium);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            color: var(--text-main);
+            border-color: var(--border-strong);
+        }
+
+        .report-toolbar .toolbar-actions .btn {
+            white-space: nowrap !important;
+        }
+
+        /* Embedded Mode: Cleanly hide floating toolbar and collapse margins inside iframe */
+        body.is-embedded .report-toolbar {
+            display: none !important;
+        }
+        body.is-embedded {
+            padding-top: 0 !important;
+            background: #f1f5f9;
+        }
+        body.is-embedded .report-wrapper {
+            margin: 12px auto 40px auto !important;
+            padding: 0 12px !important;
+        }
+
+        /* Main Report Container */
+        .report-wrapper {
+            max-width: 980px;
+            margin: 24px auto 60px auto;
+            padding: 0 16px;
+        }
+
+        /* Formal Page Sheet */
+        .report-sheet {
+            background: var(--bg-sheet);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 36px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        /* Formal Running Header Strip */
+        .sheet-header-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-navy);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .sheet-header-strip .sheet-scope {
+            color: var(--primary-navy);
+        }
+
+        .sheet-header-strip .sheet-num {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        /* Formal Running Footer Strip */
+        .sheet-footer-strip {
+            margin-top: 24px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            color: var(--text-main);
+            margin-top: 0;
+            margin-bottom: 6px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .cover-title {
+            font-size: 1.65rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--primary-navy);
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .cover-subtitle {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 18px;
+        }
+
+        .section-heading {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-top: 0;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        /* Formal Meta Info Grid */
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            margin-bottom: 18px;
+        }
+
+        .meta-col .label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+
+        .meta-col .val {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text-main);
+        }
+
+        /* Executive KPI Summary Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .kpi-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            text-align: left;
+            position: relative;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .kpi-card .kpi-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .kpi-total .kpi-val { color: var(--text-main); }
+        .kpi-pass .kpi-val { color: var(--success-accent); }
+        .kpi-warn .kpi-val { color: var(--warning-accent); }
+        .kpi-crit .kpi-val { color: var(--danger-accent); }
+
+        /* Overall Status Callout Banner - Formal High Contrast */
+        .status-callout {
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border: 1px solid var(--border-medium);
+            background: #ffffff;
+            border-left: 5px solid var(--primary-navy);
+        }
+
+        .status-callout.critical, .status-callout.danger {
+            border-left-color: var(--danger-accent);
+            background: var(--danger-bg);
+            border-color: var(--danger-border);
+        }
+
+        .status-callout.warning, .status-callout.high {
+            border-left-color: var(--warning-accent);
+            background: var(--warning-bg);
+            border-color: var(--warning-border);
+        }
+
+        .status-callout.pass, .status-callout.success {
+            border-left-color: var(--success-accent);
+            background: var(--success-bg);
+            border-color: var(--success-border);
+        }
+
+        .status-badge-lg {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .status-badge-lg.critical, .status-badge-lg.danger {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+            border: 1px solid var(--danger-accent);
+        }
+
+        .status-badge-lg.warning, .status-badge-lg.high {
+            background: #fef3c7;
+            color: var(--warning-text);
+            border: 1px solid var(--warning-accent);
+        }
+
+        .status-badge-lg.pass, .status-badge-lg.success {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-accent);
+        }
+
+        .status-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        /* Formal Badges */
+        .badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            line-height: 1.25;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .badge-critical, .badge-danger {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+            border: 1px solid var(--danger-border);
+        }
+
+        .badge-high, .badge-warning {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+            border: 1px solid var(--warning-border);
+        }
+
+        .badge-medium {
+            background: var(--info-bg);
+            color: var(--info-text);
+            border: 1px solid var(--info-border);
+        }
+
+        .badge-low, .badge-info {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid var(--border-medium);
+        }
+
+        .badge-pass, .badge-success {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-border);
+        }
+
+        /* Formal Tables - Strictly Fit Width, No Overflow Scrollbars */
+        .table-wrap {
+            width: 100%;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            background: #ffffff;
+            overflow: visible;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            text-align: left;
+            table-layout: auto;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #1e293b;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.6px;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-medium);
+        }
+
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) td {
+            background: #fafbfc;
+        }
+
+        /* High-Contrast Code Elements on White Background */
+        code, .code-tag {
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 0.82em;
+            color: #0f172a;
+            background: #f1f5f9;
+            border: 1px solid var(--border-medium);
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-weight: 600;
+        }
+
+        .evidence-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-medium);
+            border-left: 4px solid var(--primary-navy);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .evidence-box strong {
+            color: var(--primary-navy);
+        }
+
+        /* Formal Finding Cards */
+        .finding-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-left: 4px solid var(--danger-accent);
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            margin-bottom: 14px;
+        }
+
+        .finding-card.severity-high {
+            border-left-color: var(--warning-accent);
+        }
+
+        .finding-card.severity-medium {
+            border-left-color: var(--info-accent);
+        }
+
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 8px;
+        }
+
+        .finding-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary-navy);
+        }
+
+        .finding-meta {
+            display: flex;
+            gap: 14px;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .finding-meta strong {
+            color: var(--text-secondary);
+        }
+
+        .finding-body {
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+
+        .finding-body .sec-label {
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-top: 8px;
+            margin-bottom: 2px;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .finding-body .sec-label::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .finding-body .sec-label.obs::before { background: var(--danger-accent); }
+        .finding-body .sec-label.imp::before { background: var(--warning-accent); }
+        .finding-body .sec-label.act::before { background: var(--success-accent); }
+
+        .finding-body .action-text {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        /* Progress Distribution Bar */
+        .dist-bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .dist-track {
+            flex: 1;
+            height: 7px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .dist-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: #2563eb;
+        }
+
+        .dist-fill.danger { background: var(--danger-accent); }
+        .dist-fill.warning { background: var(--warning-accent); }
+        .dist-fill.info { background: var(--info-accent); }
+        .dist-fill.success { background: var(--success-accent); }
+
+        /* Strategic Recommendations Grid (3 Horizons) */
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+            margin-bottom: 16px;
+        }
+
+        .rec-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-top: 3px solid var(--primary-navy);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rec-card.p1 { border-top-color: var(--danger-accent); }
+        .rec-card.p2 { border-top-color: var(--warning-accent); }
+        .rec-card.p3 { border-top-color: var(--info-accent); }
+
+        .rec-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-bottom: 2px;
+        }
+
+        .rec-horizon {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .rec-card ol {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .rec-card li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .rec-card li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Finding Lifecycle Tracker */
+        .lifecycle-track {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+            margin-bottom: 16px;
+            font-size: 0.74rem;
+            color: var(--text-muted);
+        }
+
+        .lifecycle-track .stage {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .lifecycle-track .stage.active {
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .lifecycle-track .arrow {
+            color: var(--border-strong);
+            font-size: 0.85rem;
+        }
+
+        /* -------------------------------------------------------------
+           PRINT & PDF EXPORT OPTIMIZATIONS (Strictly 6 Pristine Pages)
+           ------------------------------------------------------------- */
+        @page {
+            size: A4 portrait;
+            margin: 12mm 14mm;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                font-size: 9pt !important;
+                line-height: 1.35 !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .report-wrapper {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .report-sheet {
+                background: #ffffff !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 0 0 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .report-sheet:last-of-type {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+
+            .prevent-split, tr, table, .table-wrap, .kpi-row, .finding-card, .status-callout, .rec-card, .evidence-box, .meta-grid {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            /* Completely hide horizontal scrollbar artifacts in print */
+            * {
+                overflow: visible !important;
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+            }
+
+            ::-webkit-scrollbar {
+                display: none !important;
+            }
+
+            .table-wrap {
+                border-color: #cbd5e1 !important;
+            }
+
+            th {
+                background: #f1f5f9 !important;
+                color: #0f172a !important;
+                border-bottom: 2px solid #94a3b8 !important;
+            }
+
+            td {
+                border-bottom: 1px solid #e2e8f0 !important;
+            }
+
+            .kpi-card, .rec-card, .finding-card, .evidence-box, .meta-grid {
+                border: 1px solid #cbd5e1 !important;
+                background: #ffffff !important;
+            }
+
+            .meta-grid {
+                background: #f8fafc !important;
+            }
+
+            code, .code-tag {
+                background: #f1f5f9 !important;
+                color: #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Top Actions Toolbar (Hidden in Print) -->
+    <div class="report-toolbar no-print">
+        <div class="toolbar-brand">
+            <span>Zenquix Infrastructure Audit</span>
+            <span class="badge-tag">Executive Decision Deliverable</span>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn btn-secondary" onclick="downloadStandaloneHTML()">
+                📥 Download HTML
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='/api/export/executive/docx'">
+                📝 Word Document (.docx)
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='/api/export/executive/md'">
+                📄 Markdown
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='/api/export/excel'">
+                📊 Evidence Workbook (.xlsx)
+            </button>
+            <button class="btn btn-primary" onclick="window.print()">
+                🖨️ Save as PDF / Print
+            </button>
+        </div>
+    </div>
+
+    <div class="report-wrapper">
+
+        <!-- =================================================================
+             PAGE 1: EXECUTIVE SUMMARY & DASHBOARD + RECOMMENDED ACTION PLAN
+             ================================================================= -->
+        <div class="report-sheet">
+            <div class="sheet-header-strip">
+                <div class="sheet-scope">Enterprise Network Infrastructure Audit Report</div>
+                <div class="sheet-num">PAGE 01 &bull; EXECUTIVE SUMMARY</div>
+            </div>
+
+            <div class="cover-title">ENTERPRISE NETWORK INFRASTRUCTURE AUDIT REPORT</div>
+            <div class="cover-subtitle">Management Decision Document & Comprehensive Posture Assessment</div>
+
+            <div class="meta-grid">
+                <div class="meta-col">
+                    <div class="label">Customer Organization</div>
+                    <div class="val">{{ metrics.customer_name }}</div>
+                </div>
+                <div class="meta-col">
+                    <div class="label">Site / Facility</div>
+                    <div class="val">{{ metrics.site_location }}</div>
+                </div>
+                <div class="meta-col">
+                    <div class="label">Audit Date</div>
+                    <div class="val">{{ metrics.audit_date }}</div>
+                </div>
+                <div class="meta-col">
+                    <div class="label">Audit Scope</div>
+                    <div class="val">Network Infrastructure</div>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-row" style="grid-template-columns: repeat(5, 1fr);">
+                <div class="kpi-card kpi-total">
+                    <div class="kpi-label">Audited Devices</div>
+                    <div class="kpi-val">{{ metrics.total_devices }}</div>
+                </div>
+                <div class="kpi-card" style="border-left: 3px solid var(--primary-blue);">
+                    <div class="kpi-label">Executed Checks</div>
+                    <div class="kpi-val" style="color: var(--primary-navy);">{{ metrics.total_checks }}</div>
+                </div>
+                <div class="kpi-card kpi-pass">
+                    <div class="kpi-label">Passed Checks</div>
+                    <div class="kpi-val">{{ metrics.passed_checks }}</div>
+                </div>
+                <div class="kpi-card kpi-warn">
+                    <div class="kpi-label">Warnings</div>
+                    <div class="kpi-val">{{ metrics.warning_checks }}</div>
+                </div>
+                <div class="kpi-card" style="border-left: 3px solid var(--accent-blue);">
+                    <div class="kpi-label">Compliance Rate</div>
+                    <div class="kpi-val" style="color: {{ 'var(--success-accent)' if metrics.compliance_pct >= 90 else 'var(--warning-accent)' if metrics.compliance_pct >= 75 else 'var(--danger-accent)' }};">
+                        {{ metrics.compliance_pct }}%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overall Audit Status Banner -->
+            <div class="status-callout {{ metrics.audit_status_badge }}">
+                <div>
+                    <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 700; margin-bottom: 3px;">Overall Audit Status</div>
+                    <div class="status-badge-lg {{ metrics.audit_status_badge }}">{{ metrics.audit_status }}</div>
+                </div>
+                <div class="status-desc">
+                    {{ metrics.status_explanation }}
+                </div>
+            </div>
+
+            <!-- Recommended Executive Action Plan -->
+            <div class="section-heading">01. Recommended Executive Action Plan</div>
+            <div class="section-desc">Immediate operational and architecture priorities derived from verified audit findings:</div>
+            
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 75px; text-align: center;">Priority</th>
+                            <th style="width: 190px;">Operational Area</th>
+                            <th style="width: 110px; text-align: center;">Affected Nodes</th>
+                            <th>Suggested Strategic Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in metrics.action_plan %}
+                        <tr>
+                            <td style="text-align: center;">
+                                <span class="badge badge-{{ 'critical' if item.priority == 1 else 'high' if item.priority == 2 else 'medium' }}">P{{ item.priority }}</span>
+                            </td>
+                            <td><strong>{{ item.area }}</strong></td>
+                            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ item.affected }}</td>
+                            <td>{{ item.suggested_action }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="sheet-footer-strip">
+                <div>Deliverable Separation: Management Summary (Report 1) &bull; Technical Evidence Workbook (Report 2)</div>
+                <div>Audit Engine v2.4.0 &bull; Page 1 of 6</div>
+            </div>
+        </div>
+
+
+        <!-- =================================================================
+             PAGE 2: SCOPE & DISCOVERY + FINDINGS CLASSIFICATION
+             ================================================================= -->
+        <div class="report-sheet">
+            <div class="sheet-header-strip">
+                <div class="sheet-scope">Enterprise Network Infrastructure Audit Report</div>
+                <div class="sheet-num">PAGE 02 &bull; INFRASTRUCTURE AT A GLANCE &bull; KEY FINDINGS</div>
+            </div>
+
+            <!-- Section 1: Scope & Discovery -->
+            <div class="section-heading">02. Infrastructure Scope & Discovery</div>
+            <div class="section-desc">Factual breakdown of audited networking hardware, site distribution, and reachability:</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px;">Hardware Inventory by Category</div>
+                    <div class="table-wrap" style="margin-bottom: 0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Hardware Classification</th>
+                                    <th style="text-align: right; width: 90px;">Node Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for inv in metrics.inventory_breakdown %}
+                                <tr>
+                                    <td><strong>{{ inv.category }}</strong></td>
+                                    <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ inv.count }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr style="background: #f1f5f9; font-weight: 700;">
+                                    <td>Total Discovered Nodes</td>
+                                    <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: var(--primary-navy);">{{ metrics.total_devices }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px;">Audited Site Locations</div>
+                    <div class="table-wrap" style="margin-bottom: 0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Site Facility</th>
+                                    <th style="text-align: right; width: 90px;">Active Nodes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for site in metrics.sites_list %}
+                                <tr>
+                                    <td><strong>{{ site.site }}</strong></td>
+                                    <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ site.count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connectivity KPIs -->
+            <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px;">Connectivity & Execution Integrity</div>
+            <div class="kpi-row" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 14px;">
+                <div class="kpi-card" style="padding: 8px 12px;">
+                    <div class="kpi-label">Discovered</div>
+                    <div class="kpi-val" style="font-size: 1.35rem; color: var(--text-main);">{{ metrics.connectivity_stats.discovered }}</div>
+                </div>
+                <div class="kpi-card" style="padding: 8px 12px;">
+                    <div class="kpi-label">Reachable</div>
+                    <div class="kpi-val" style="font-size: 1.35rem; color: var(--success-accent);">{{ metrics.connectivity_stats.reachable }}</div>
+                </div>
+                <div class="kpi-card" style="padding: 8px 12px;">
+                    <div class="kpi-label">Unreachable</div>
+                    <div class="kpi-val" style="font-size: 1.35rem; color: {{ 'var(--danger-accent)' if metrics.connectivity_stats.unreachable > 0 else 'var(--text-muted)' }};">{{ metrics.connectivity_stats.unreachable }}</div>
+                </div>
+                <div class="kpi-card" style="padding: 8px 12px;">
+                    <div class="kpi-label">Audited</div>
+                    <div class="kpi-val" style="font-size: 1.35rem; color: var(--primary-blue);">{{ metrics.connectivity_stats.audited }}</div>
+                </div>
+                <div class="kpi-card" style="padding: 8px 12px;">
+                    <div class="kpi-label">Partial</div>
+                    <div class="kpi-val" style="font-size: 1.35rem; color: {{ 'var(--warning-accent)' if metrics.connectivity_stats.partially_audited > 0 else 'var(--text-muted)' }};">{{ metrics.connectivity_stats.partially_audited }}</div>
+                </div>
+            </div>
+
+            <!-- Section 2: Findings Categorization -->
+            <div class="section-heading" style="margin-top: 14px;">03. Findings Classification & Risk Distribution</div>
+            <div class="section-desc">Audited findings classified by technical domain to eliminate unorganized data dumps:</div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Audit Category</th>
+                            <th style="width: 100px; text-align: center;">Total Checks</th>
+                            <th style="width: 75px; text-align: center;">Passed</th>
+                            <th style="width: 75px; text-align: center;">Warnings</th>
+                            <th style="width: 75px; text-align: center;">Failed</th>
+                            <th style="width: 140px; text-align: center;">Compliance %</th>
+                            <th style="width: 80px; text-align: center;">Findings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in metrics.category_rows %}
+                        <tr>
+                            <td><strong>{{ cat.name }}</strong></td>
+                            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ cat.total }}</td>
+                            <td style="text-align: center;"><span class="badge badge-pass">{{ cat.passed }}</span></td>
+                            <td style="text-align: center;"><span class="badge {{ 'badge-warning' if cat.warnings > 0 else 'badge-low' }}">{{ cat.warnings }}</span></td>
+                            <td style="text-align: center;"><span class="badge {{ 'badge-critical' if cat.failed > 0 else 'badge-low' }}">{{ cat.failed }}</span></td>
+                            <td>
+                                <div class="dist-bar-wrapper">
+                                    <div class="dist-track">
+                                        <div class="dist-fill {{ 'success' if cat.compliance >= 90 else 'warning' if cat.compliance >= 75 else 'danger' }}" style="width: {{ cat.compliance }}%;"></div>
+                                    </div>
+                                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-muted); width: 34px; text-align: right;">{{ cat.compliance }}%</span>
+                                </div>
+                            </td>
+                            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: {{ 'var(--danger-accent)' if cat.findings_count > 0 else 'var(--text-muted)' }};">
+                                {{ cat.findings_count }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="evidence-box" style="margin-bottom: 0;">
+                <strong>Management Takeaway:</strong> Findings represent only non-passing test evaluations (warnings and failures). Category compliance rates reflect the exact ratio of passed checks over evaluated tests in each domain.
+            </div>
+
+            <div class="sheet-footer-strip">
+                <div>Scope & Findings Classification Breakdown</div>
+                <div>Audit Engine v2.4.0 &bull; Page 2 of 6</div>
+            </div>
+        </div>
+
+
+        <!-- =================================================================
+             PAGE 3: TOP CRITICAL & HIGH RISK FINDINGS
+             ================================================================= -->
+        <div class="report-sheet">
+            <div class="sheet-header-strip">
+                <div class="sheet-scope">Enterprise Network Infrastructure Audit Report</div>
+                <div class="sheet-num">PAGE 03 &bull; TOP FINDINGS</div>
+            </div>
+
+            <div class="section-heading">04. Top Critical & High Risk Findings</div>
+            <div class="section-desc">Highest priority findings presented with verified business impact and engineering remediations:</div>
+
+            {% for tf in metrics.top_findings %}
+            <div class="finding-card severity-{{ tf.severity.lower() }}">
+                <div class="finding-header">
+                    <div>
+                        <div class="finding-title">{{ tf.number }} &bull; {{ tf.title }}</div>
+                        <div class="finding-meta">
+                            <span>Device: <strong>{{ tf.affected_devices|join(', ') if tf.affected_devices else 'Scope Base' }}</strong></span>
+                            <span>Category: <strong>{{ tf.category }}</strong></span>
+                            <span>Check ID: <code>{{ tf.check_id }}</code></span>
+                            <span>Command: <code>{{ tf.command }}</code></span>
+                        </div>
+                    </div>
+                    <span class="badge badge-{{ tf.severity.lower() }}">{{ tf.severity }}</span>
+                </div>
+                <div class="finding-body">
+                    <div class="sec-label obs">Verified Observation</div>
+                    <div>{{ tf.observation }}</div>
+
+                    <div class="sec-label imp">Potential Operational & Business Impact</div>
+                    <div>{{ tf.potential_impact }}</div>
+
+                    <div class="sec-label act">Recommended Engineering Remediation</div>
+                    <div class="action-text">{{ tf.recommended_action }}</div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="sheet-footer-strip">
+                <div>Priority Engineering Remediation Directives</div>
+                <div>Audit Engine v2.4.0 &bull; Page 3 of 6</div>
+            </div>
+        </div>
+
+
+        <!-- =================================================================
+             PAGE 4: SECURITY POSTURE & RESILIENCE ASSESSMENT
+             ================================================================= -->
+        <div class="report-sheet">
+            <div class="sheet-header-strip">
+                <div class="sheet-scope">Enterprise Network Infrastructure Audit Report</div>
+                <div class="sheet-num">PAGE 04 &bull; SECURITY POSTURE &bull; RESILIENCE</div>
+            </div>
+
+            <!-- Section 4: Security Controls -->
+            <div class="section-heading">05. Security Control Posture & Compliance</div>
+            <div class="section-desc">Evidence-based validation of infrastructure management-plane security controls:</div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Security Control Area</th>
+                            <th style="width: 110px; text-align: center;">Compliance %</th>
+                            <th style="width: 140px;">Visual Posture</th>
+                            <th>Validation Scope & Policy Benchmark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sc in metrics.security_controls %}
+                        <tr>
+                            <td><strong>{{ sc.name }}</strong></td>
+                            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 800; color: {{ 'var(--success-accent)' if sc.pct >= 85 else 'var(--warning-accent)' if sc.pct >= 70 else 'var(--danger-accent)' }};">
+                                {{ sc.pct }}%
+                            </td>
+                            <td>
+                                <div class="dist-bar-wrapper">
+                                    <div class="dist-track">
+                                        <div class="dist-fill {{ 'success' if sc.pct >= 85 else 'warning' if sc.pct >= 70 else 'danger' }}" style="width: {{ sc.pct }}%;"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="font-size: 0.8rem; color: var(--text-secondary);">{{ sc.detail }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Section 5: Resilience Assessment -->
+            <div class="section-heading" style="margin-top: 14px;">06. High Availability & Redundancy Verification</div>
+            <div class="section-desc">Verification of failover mechanisms, loop prevention, and link aggregation health:</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px;">
+                <div>
+                    <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px;">Protocol Redundancy Checks</div>
+                    <div class="table-wrap" style="margin-bottom: 0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Protocol Check</th>
+                                    <th style="width: 65px; text-align: center;">Status</th>
+                                    <th>Evaluation Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ac in metrics.availability_checks %}
+                                <tr>
+                                    <td><strong>{{ ac.protocol }}</strong></td>
+                                    <td style="text-align: center; font-size: 0.95rem; font-weight: 800; color: {{ 'var(--success-accent)' if ac.status == '✓' else 'var(--warning-accent)' if ac.status == '⚠' else 'var(--text-muted)' }};">
+                                        {{ ac.status }}
+                                    </td>
+                                    <td style="font-size: 0.78rem; color: var(--text-secondary);">{{ ac.note }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px;">Potential Availability Concerns</div>
+                    <div class="table-wrap" style="margin-bottom: 0;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Identified Issue</th>
+                                    <th style="width: 65px; text-align: center;">Nodes</th>
+                                    <th style="width: 75px;">Severity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ac in metrics.availability_concerns %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ ac.finding }}</strong>
+                                        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">{{ ac.impact }}</div>
+                                    </td>
+                                    <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ ac.devices }}</td>
+                                    <td><span class="badge badge-{{ ac.severity.lower() }}">{{ ac.severity }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence-box" style="margin-bottom: 0;">
+                <strong>Security Audit Philosophy:</strong> Reports rely exclusively on verifiable configuration evidence extracted from CLI commands (e.g. <code>show running-config | include aaa</code>, <code>show ip ssh</code>, <code>show snmp-server</code>). No subjective ratings or assumptions are used.
+            </div>
+
+            <div class="sheet-footer-strip">
+                <div>Management Plane Security & Availability Verification</div>
+                <div>Audit Engine v2.4.0 &bull; Page 4 of 6</div>
+            </div>
+        </div>
+
+
+        <!-- =================================================================
+             PAGE 5: FLEET LIFECYCLE & GEOGRAPHIC RISK DISTRIBUTION
+             ================================================================= -->
+        <div class="report-sheet">
+            <div class="sheet-header-strip">
+                <div class="sheet-scope">Enterprise Network Infrastructure Audit Report</div>
+                <div class="sheet-num">PAGE 05 &bull; INFRASTRUCTURE HEALTH &bull; SITE RISK</div>
+            </div>
+
+            <!-- Section 6: Fleet Lifecycle -->
+            <div class="section-heading">07. Operational Health & OS / Firmware Lifecycle</div>
+            <div class="section-desc">Overall device fleet health distribution and software baseline conformity:</div>
+
+            <div class="kpi-row" style="margin-bottom: 14px;">
+                <div class="kpi-card kpi-pass" style="padding: 10px 12px;">
+                    <div class="kpi-label">Healthy Nodes</div>
+                    <div class="kpi-val" style="font-size: 1.5rem;">{{ metrics.device_health.healthy }}</div>
+                </div>
+                <div class="kpi-card kpi-warn" style="padding: 10px 12px;">
+                    <div class="kpi-label">Needs Attention</div>
+                    <div class="kpi-val" style="font-size: 1.5rem;">{{ metrics.device_health.needs_attention }}</div>
+                </div>
+                <div class="kpi-card kpi-crit" style="padding: 10px 12px;">
+                    <div class="kpi-label">Critical Attention</div>
+                    <div class="kpi-val" style="font-size: 1.5rem;">{{ metrics.device_health.critical }}</div>
+                </div>
+                <div class="kpi-card" style="padding: 10px 12px;">
+                    <div class="kpi-label">Unreachable</div>
+                    <div class="kpi-val" style="font-size: 1.5rem; color: var(--text-muted);">{{ metrics.device_health.unreachable }}</div>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Firmware / OS Release</th>
+                            <th style="width: 110px; text-align: center;">Active Devices</th>
+                            <th style="width: 150px;">Fleet Percentage</th>
+                            <th style="width: 140px; text-align: center;">Policy Alignment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for os in metrics.os_distribution %}
+                        <tr>
+                            <td><code>{{ os.version }}</code></td>
+                            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ os.count }}</td>
+                            <td>
+                                <div class="dist-bar-wrapper">
+                                    <div class="dist-track">
+                                        <div class="dist-fill" style="width: {{ (os.count / metrics.total_devices * 100)|round }}%;"></div>
+                                    </div>
+                                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-muted); width: 32px; text-align: right;">{{ (os.count / metrics.total_devices * 100)|round }}%</span>
+                                </div>
+                            </td>
+                            <td style="text-align: center;"><span class="badge badge-pass">Approved Baseline</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Section 7: Site Risk Distribution -->
+            <div class="section-heading" style="margin-top: 14px;">08. Site & Facility Risk Concentration</div>
+            <div class="section-desc">Multi-site risk concentration mapping to identify localized operational vulnerabilities:</div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Facility / Data Center</th>
+                            <th style="width: 95px; text-align: center;">Total Nodes</th>
+                            <th style="width: 85px; text-align: center;">Critical</th>
+                            <th style="width: 85px; text-align: center;">High</th>
+                            <th style="width: 85px; text-align: center;">Medium</th>
+                            <th style="width: 85px; text-align: center;">Low</th>
+                            <th style="width: 130px; text-align: center;">Facility Posture</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for site in metrics.site_risk_table %}
+                        <tr>
+                            <td><strong>{{ site.site }}</strong></td>
+                            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ site.device_count }}</td>
+                            <td style="text-align: center;"><span class="badge {{ 'badge-critical' if site.critical > 0 else 'badge-low' }}">{{ site.critical }}</span></td>
+                            <td style="text-align: center;"><span class="badge {{ 'badge-high' if site.high > 0 else 'badge-low' }}">{{ site.high }}</span></td>
+                            <td style="text-align: center;"><span class="badge {{ 'badge-medium' if site.medium > 0 else 'badge-low' }}">{{ site.medium }}</span></td>
+                            <td style="text-align: center;"><span class="badge badge-low">{{ site.low }}</span></td>
+                            <td style="text-align: center;">
+                                <span class="badge badge-{{ 'critical' if site.status == 'ATTENTION' else 'high' if site.status == 'WARNING' else 'pass' }}">{{ site.status }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="evidence-box" style="margin-bottom: 0;">
+                <strong>Executive Observation:</strong> Risk distribution allows customer IT leadership to deploy engineering remediation resources directly to locations exhibiting the highest finding densities without wasting effort on healthy facilities.
+            </div>
+
+            <div class="sheet-footer-strip">
+                <div>Fleet Health & Multi-Facility Assessment</div>
+                <div>Audit Engine v2.4.0 &bull; Page 5 of 6</div>
+            </div>
+        </div>
+
+
+        <!-- =================================================================
+             PAGE 6: RECOMMENDATIONS ROADMAP & AUDIT TRACEABILITY
+             ================================================================= -->
+        <div class="report-sheet">
+            <div class="sheet-header-strip">
+                <div class="sheet-scope">Enterprise Network Infrastructure Audit Report</div>
+                <div class="sheet-num">PAGE 06 &bull; RECOMMENDATIONS &bull; AUDIT SCOPE & EVIDENCE</div>
+            </div>
+
+            <!-- Section 8: Recommendations Roadmap -->
+            <div class="section-heading">09. Strategic & Operational Recommendations</div>
+            <div class="section-desc">Prioritized engineering roadmap organized into three structured time horizons:</div>
+
+            <div class="rec-grid">
+                <div class="rec-card p1">
+                    <div class="rec-title">Immediate Review</div>
+                    <div class="rec-horizon">Horizon: 0 – 14 Days</div>
+                    <ol>
+                        {% for r in metrics.recommendations.immediate %}
+                        <li>{{ r }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+
+                <div class="rec-card p2">
+                    <div class="rec-title">Near-Term Remediation</div>
+                    <div class="rec-horizon">Horizon: 15 – 60 Days</div>
+                    <ol>
+                        {% for r in metrics.recommendations.near_term %}
+                        <li>{{ r }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+
+                <div class="rec-card p3">
+                    <div class="rec-title">Continuous Improvement</div>
+                    <div class="rec-horizon">Horizon: 60+ Days</div>
+                    <ol>
+                        {% for r in metrics.recommendations.continuous %}
+                        <li>{{ r }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Section 9: Methodology & Traceability -->
+            <div class="section-heading" style="margin-top: 14px;">10. Audit Scope, Methodology & Evidence Traceability</div>
+            <div class="section-desc">Execution parameters, data collection sources, and lifecycle governance:</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px;">
+                <div>
+                    <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px;">Data Collection Sources</div>
+                    <ul style="margin: 0; padding-left: 18px; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                        {% for src in metrics.audit_scope_data.data_sources %}
+                        <li>{{ src }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div>
+                    <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px;">Evaluated Audit Domains</div>
+                    <ul style="margin: 0; padding-left: 18px; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;">
+                        {% for cat in metrics.audit_scope_data.audit_categories[:5] %}
+                        <li>{{ cat }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px;">Finding Lifecycle & Remediation Tracking</div>
+            <div class="lifecycle-track">
+                {% for stage in metrics.audit_scope_data.lifecycle_stages %}
+                <span class="stage">{{ stage }}</span>
+                {% if not loop.last %}<span class="arrow">&rarr;</span>{% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="table-wrap" style="margin-bottom: 14px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Open Findings Status</th>
+                            <th style="text-align: center;">Critical</th>
+                            <th style="width: 80px; text-align: center;">High</th>
+                            <th style="width: 80px; text-align: center;">Medium</th>
+                            <th style="width: 80px; text-align: center;">Low</th>
+                            <th style="width: 110px; text-align: center;">New Findings</th>
+                            <th style="width: 130px; text-align: center;">Resolved in Audit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Current Enterprise Posture</strong></td>
+                            <td style="text-align: center; color: var(--danger-accent); font-weight: 800;">{{ metrics.audit_scope_data.open_findings.critical }}</td>
+                            <td style="text-align: center; color: var(--warning-accent); font-weight: 800;">{{ metrics.audit_scope_data.open_findings.high }}</td>
+                            <td style="text-align: center; color: var(--info-accent); font-weight: 800;">{{ metrics.audit_scope_data.open_findings.medium }}</td>
+                            <td style="text-align: center; color: var(--text-muted); font-weight: 600;">{{ metrics.audit_scope_data.open_findings.low }}</td>
+                            <td style="text-align: center; font-weight: 800; color: var(--primary-navy);">{{ metrics.audit_scope_data.open_findings.new_findings }}</td>
+                            <td style="text-align: center; color: var(--success-accent); font-weight: 800;">{{ metrics.audit_scope_data.open_findings.resolved }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px;">Audit Evidence Traceability Sample</div>
+            <div class="table-wrap" style="margin-bottom: 14px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 105px;">Device</th>
+                            <th style="width: 130px;">Check ID</th>
+                            <th>Verification CLI / API Command</th>
+                            <th style="width: 75px; text-align: center;">Status</th>
+                            <th style="width: 75px; text-align: center;">Severity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ev in metrics.evidence[:6] %}
+                        <tr>
+                            <td><strong>{{ ev.device }}</strong></td>
+                            <td><code>{{ ev.check_id }}</code></td>
+                            <td><code style="font-size: 0.74rem;">{{ ev.command }}</code></td>
+                            <td style="text-align: center;"><span class="badge badge-{{ 'pass' if ev.status == 'PASS' else 'warning' if ev.status == 'WARNING' else 'critical' }}">{{ ev.status }}</span></td>
+                            <td style="text-align: center;"><span class="badge badge-low">{{ ev.severity }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="evidence-box" style="margin-bottom: 0;">
+                <div>Evidence Traceability: <code>{{ metrics.evidence_workbook_name }}</code></div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 3px;">Audited Nodes: <strong>{{ metrics.total_devices }}</strong> &bull; Total Executed Checks: <strong>{{ metrics.total_checks }}</strong> &bull; Compliance: <strong>{{ metrics.compliance_pct }}%</strong> &bull; Framework: Cisco Best Practices, NIST 800-53, CIS Benchmarks</div>
+            </div>
+
+            <div class="sheet-footer-strip">
+                <div>Recommendations Roadmap & Audit Traceability Verification</div>
+                <div>Audit Engine v2.4.0 &bull; Page 6 of 6</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function downloadStandaloneHTML() {
+            const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '{{ metrics.customer_name }}_Executive_Infrastructure_Audit_Report.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Auto-detect if rendered inside an iframe or requested with embedded=1
+        if (window.self !== window.top || window.location.search.includes('embedded=1')) {
+            document.body.classList.add('is-embedded');
+        }
+    </script>
+</body>
+</html>

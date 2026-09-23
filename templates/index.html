@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Network Infrastructure Audit Application</title>
+    <meta name="description"
+        content="Enterprise-grade network infrastructure audit workbench with device-type driven protocol verification, multi-vendor CLI commands, and consolidated compliance matrix.">
+    <link rel="stylesheet" href="/static/css/style.css?v=2.1">
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">
+            <div class="brand-logo">AUD</div>
+            <div>
+                <div class="brand-title">Enterprise Infrastructure Audit Application</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Design Intent • Topology Verification •
+                    Protocol Audit & Verification</div>
+            </div>
+        </div>
+
+        <!-- 3-Stage Step Wizard Navigation -->
+        <div class="step-wizard">
+            <div class="step-item active" data-stage="1">
+                <div class="step-num">1</div>
+                <span>Device Inventory</span>
+            </div>
+            <div class="step-item" data-stage="2">
+                <div class="step-num">2</div>
+                <span>Topology & Links</span>
+            </div>
+            <div class="step-item" data-stage="3">
+                <div class="step-num">3</div>
+                <span>Device Audit</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="openCatalogStudioModal()"
+                style="background: rgba(14, 165, 233, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">⚙️
+                Catalog Studio</button>
+            <button class="btn btn-sm" onclick="downloadEvidenceWorkbook()">📥 Export Worksheet</button>
+            <input type="file" id="excelFileInput" accept=".xlsx" style="display: none;"
+                onchange="handleExcelImport(event)">
+            <input type="file" id="scenarioJsonInput" accept=".json" style="display: none;"
+                onchange="handleScenarioJsonImport(event)">
+            <input type="file" id="vendorJsonInput" accept=".json" style="display: none;"
+                onchange="handleVendorJsonImport(event)">
+        </div>
+    </header>
+
+    <div class="main-container">
+
+        <!-- ==========================================================================
+             STAGE 1: DEVICE INVENTORY & DESIGN
+             ========================================================================== -->
+        <section id="stage1View">
+
+            <!-- ============ DEVICE INVENTORY CARD ============ -->
+            <div class="glass-card">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">📦 Page 1 — Device Inventory & Design Specifications</div>
+                        <div class="section-desc">
+                            Active Company: <strong id="invCompanyHeader" style="color: var(--secondary);">zenquix</strong> &bull;
+                            Site Location: <strong id="invSiteHeader" style="color: var(--success);">BLRCC002</strong>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="inventorySearchInput" placeholder="🔍 Filter inventory..."
+                            style="padding: 8px 14px; font-size: 0.85rem; width: 190px; border-radius: 20px; background: rgba(30,41,59,0.8);"
+                            oninput="filterInventoryTable(this.value)">
+                        <span style="font-size: 0.9rem; color: var(--text-muted); margin-right: 4px;">Nodes: <strong
+                                id="totalDevicesCount" style="color: var(--secondary);">0</strong></span>
+                        <button class="btn btn-sm" onclick="openNewFileModal()" style="font-weight: 600; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);">
+                            ✨ Create Blank File
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="loadPresetTopology()" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;">
+                            ⚡ Load Presets
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="triggerExcelImport()">
+                            📂 Import .xlsx
+                        </button>
+                        <button class="btn btn-sm" onclick="openAddDeviceModal()">➕ Add Network Device</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Device ID</th>
+                                <th>Hostname</th>
+                                <th>Vendor</th>
+                                <th>Hardware Model</th>
+                                <th>OS Version</th>
+                                <th>Function</th>
+                                <th>Tier Role</th>
+                                <th>Ports / Speed</th>
+                                <th>Management IP</th>
+                                <th>Lifecycle</th>
+                                <th style="text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <!-- Injected by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             STAGE 2: NETWORK CONNECTION TOPOLOGY & CONNECTION DIAGRAM
+             ========================================================================== -->
+        <section id="stage2View" style="display: none;">
+            <div class="glass-card">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">🌐 Page 2 — Network Connection Topology & Connection Diagram</div>
+                        <div class="section-desc">Configure logical & physical connections with real-time port usage
+                            tracking and multi-tier visualization graph.</div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="toggleTopologyDiagram()" id="toggleDiagramBtn">🎨
+                            View Topology Graph</button>
+                        <span class="badge badge-role" style="font-size: 0.82rem; padding: 6px 12px;">Active Links:
+                            <strong id="totalLinksCount" style="color: #ffffff; margin-left: 4px;">0</strong></span>
+                    </div>
+                </div>
+
+                <!-- Visual Connection Diagram Canvas -->
+                <div class="topo-canvas-container" id="visualDiagramSection" style="display: none;">
+                    <div class="section-header" style="margin-bottom: 12px;">
+                        <div>
+                            <div class="section-title" style="font-size: 1.05rem; color: #93c5fd;">🗺️ Network
+                                Connection Diagram Graph</div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">💡 Drag network
+                                node cards or edge connection badges to customize the topology layout in real-time.
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <div class="topo-legend"
+                                style="display: flex; gap: 12px; margin-right: 12px; font-size: 0.75rem; color: var(--text-dim);">
+                                <span><span
+                                        style="display:inline-block;width:12px;height:3px;background:#38bdf8;margin-right:4px;vertical-align:middle;"></span>Port-Channel
+                                    (LACP)</span>
+                                <span><span
+                                        style="display:inline-block;width:12px;height:2px;background:#818cf8;border-top:1px dashed #818cf8;margin-right:4px;vertical-align:middle;"></span>Single
+                                    Link</span>
+                            </div>
+                            <button class="btn btn-secondary btn-sm" onclick="autoAlignTopologyTiers()">📐 Auto-Tier
+                                Layout</button>
+                            <button class="btn btn-secondary btn-sm" onclick="openCustomTierModal()">🎛️ Custom
+                                Tiering</button>
+                            <button class="btn btn-secondary btn-sm" onclick="resetTopologyLayout()">↺ Reset</button>
+                            <button class="btn btn-secondary btn-sm" onclick="hideTopologyDiagram()">✕ Hide</button>
+                        </div>
+                    </div>
+                    <div id="visualTopologyGraphContainer"></div>
+                </div>
+
+                <!-- Link Configuration Builder -->
+                <div class="link-builder-box"
+                    style="background: rgba(0,0,0,0.32); border: 1px solid var(--border-accent); border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px;">
+                    <div
+                        style="font-weight: 700; font-size: 0.95rem; margin-bottom: 16px; color: var(--secondary); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 10px;">
+                        <span>🔗 Connect Physical Interfaces (Unused Ports Only)</span>
+                        <span style="font-size: 0.78rem; color: var(--text-dim); font-weight: 500;">Real-time free port
+                            filtering & LACP bundling active</span>
+                    </div>
+                    <div class="builder-rows-wrapper">
+                        <!-- Row 1: Port Channel Toggle & Number Input -->
+                        <div class="builder-po-header-row">
+                            <div class="po-toggle-group">
+                                <label class="po-checkbox-label" for="topoPoCheckbox">
+                                    <input type="checkbox" id="topoPoCheckbox" onchange="onPortChannelToggleChanged()">
+                                    <span class="po-custom-checkbox"></span>
+                                    <span class="po-label-text">Enable Port-Channel (LACP/LAG)</span>
+                                </label>
+                            </div>
+                            <div class="form-group po-number-group" id="poNumberGroupContainer">
+                                <label for="topoPoNumberInput">Port-Channel Number (Integer)</label>
+                                <div class="po-number-input-wrapper">
+                                    <span class="po-prefix-tag">Po</span>
+                                    <input type="number" id="topoPoNumberInput" min="1" max="4096" step="1"
+                                        placeholder="e.g. 10" disabled oninput="updateMappingPreview()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: 5 Columns (Source Device, Source Port, Target Device, Target Port, Speed) -->
+                        <div class="builder-5col-grid">
+                            <!-- Col 1: Source Device -->
+                            <div class="form-group">
+                                <label for="topoSrcDevice">Source Device</label>
+                                <select id="topoSrcDevice" onchange="onSourceDeviceChanged()"></select>
+                            </div>
+
+                            <!-- Col 2: Source Port (Single / Multi Select) -->
+                            <div class="form-group port-selector-col">
+                                <div class="port-label-bar">
+                                    <label for="topoSrcPort">Source Port (Unused)</label>
+                                    <span class="port-mode-badge" id="srcPortModeBadge">Single</span>
+                                </div>
+
+                                <!-- Single Port Select -->
+                                <select id="topoSrcPort" class="single-port-select"
+                                    onchange="updateMappingPreview()"></select>
+
+                                <!-- Multi Port Select Dropdown Container -->
+                                <div id="topoSrcMultiContainer" class="multi-port-container" style="display: none;">
+                                    <button type="button" class="multi-select-btn" id="topoSrcMultiBtn"
+                                        onclick="toggleMultiDropdown('src')">
+                                        <span id="topoSrcMultiSummary">Select Unused Ports...</span>
+                                        <span class="multi-arrow">▾</span>
+                                    </button>
+                                    <div id="topoSrcMultiDropdown" class="multi-select-dropdown">
+                                        <div class="multi-actions-bar">
+                                            <span id="topoSrcCountTag">0 selected</span>
+                                            <a href="javascript:void(0)" onclick="clearMultiSelection('src')">Clear</a>
+                                        </div>
+                                        <div id="topoSrcMultiList" class="multi-options-list">
+                                            <!-- Injected dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Col 3: Target Device -->
+                            <div class="form-group">
+                                <label for="topoTgtDevice">Target Device</label>
+                                <select id="topoTgtDevice" onchange="onTargetDeviceChanged()"></select>
+                            </div>
+
+                            <!-- Col 4: Target Port (Single / Multi Select) -->
+                            <div class="form-group port-selector-col">
+                                <div class="port-label-bar">
+                                    <label for="topoTgtPort">Target Port (Unused)</label>
+                                    <span class="port-mode-badge" id="tgtPortModeBadge">Single</span>
+                                </div>
+
+                                <!-- Single Port Select -->
+                                <select id="topoTgtPort" class="single-port-select"
+                                    onchange="updateMappingPreview()"></select>
+
+                                <!-- Multi Port Select Dropdown Container -->
+                                <div id="topoTgtMultiContainer" class="multi-port-container" style="display: none;">
+                                    <button type="button" class="multi-select-btn" id="topoTgtMultiBtn"
+                                        onclick="toggleMultiDropdown('tgt')">
+                                        <span id="topoTgtMultiSummary">Select Unused Ports...</span>
+                                        <span class="multi-arrow">▾</span>
+                                    </button>
+                                    <div id="topoTgtMultiDropdown" class="multi-select-dropdown">
+                                        <div class="multi-actions-bar">
+                                            <span id="topoTgtCountTag">0 selected</span>
+                                            <a href="javascript:void(0)" onclick="clearMultiSelection('tgt')">Clear</a>
+                                        </div>
+                                        <div id="topoTgtMultiList" class="multi-options-list">
+                                            <!-- Injected dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Col 5: Speed -->
+                            <div class="form-group">
+                                <label for="topoSpeedSelect">Speed</label>
+                                <select id="topoSpeedSelect">
+                                    <option value="1G">1G</option>
+                                    <option value="10G" selected>10G</option>
+                                    <option value="25G">25G</option>
+                                    <option value="40G">40G</option>
+                                    <option value="100G">100G</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Live Mapping Status & Connect Button -->
+                        <div class="builder-bottom-row">
+                            <div id="topoIndexMappingBanner" class="index-mapping-banner" style="display: none;">
+                                <div class="mapping-title-line">
+                                    <span id="mappingStatusIcon">ℹ️</span>
+                                    <span id="mappingStatusText">Select matching source and target ports</span>
+                                </div>
+                                <div id="mappingPairsContainer" class="mapping-pairs-pills">
+                                    <!-- Dynamic 1-to-1 pair chips injected here -->
+                                </div>
+                            </div>
+                            <div class="builder-connect-action-cell">
+                                <button class="btn btn-connect" id="btnConnectLink" onclick="addTopologyLink()">
+                                    <span>🔗 Connect</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Link Validation Engine Alerts Panel -->
+                <div style="margin-bottom: 24px;">
+                    <div class="section-title"
+                        style="font-size: 1rem; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🛡️ Real-Time Link Validation Engine (Section 2.4)</span>
+                        <span id="validationAlertCountBadge"
+                            style="font-size: 0.8rem; font-weight: 600; color: var(--text-dim);"></span>
+                    </div>
+                    <div id="validationAlertsContainer">
+                        <!-- Injected by app.js -->
+                    </div>
+                </div>
+
+                <!-- Active Links & Port-Channels Horizontal Switched Tabs -->
+                <div class="topology-tabs-container">
+                    <div class="topo-tab-header">
+                        <div
+                            style="font-weight: 700; font-size: 1rem; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+                            <span>📊 Connection Topology Directory</span>
+                        </div>
+                        <div class="topo-tab-buttons">
+                            <button class="topo-tab-btn active" id="tabBtnPortChannels"
+                                onclick="switchTopologyTab('portchannels')">
+                                <span class="tab-icon">🔀</span>
+                                <span>Port-Channel Aggregations</span>
+                                <span class="topo-tab-badge" id="poTabCount">0</span>
+                            </button>
+                            <button class="topo-tab-btn" id="tabBtnLinks" onclick="switchTopologyTab('links')">
+                                <span class="tab-icon">🔗</span>
+                                <span>Physical Links</span>
+                                <span class="topo-tab-badge" id="linksTabCount">0</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 1: Port-Channel Aggregations (First Tab) -->
+                    <div class="topo-tab-pane" id="panePortChannels">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Group</th>
+                                        <th>Endpoints</th>
+                                        <th>Src Ports</th>
+                                        <th>Tgt Ports</th>
+                                        <th>Protocol</th>
+                                        <th style="white-space: nowrap; text-align: center; width: 90px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="poTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 2: Physical Device-to-Device Links (Second Tab) -->
+                    <div class="topo-tab-pane" id="paneLinks" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Source Interface</th>
+                                        <th style="width: 30px; text-align: center;"></th>
+                                        <th>Target Interface</th>
+                                        <th>Link Speed</th>
+                                        <th>Bundle</th>
+                                        <th>Status</th>
+                                        <th style="white-space: nowrap; text-align: center; width: 60px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="linksTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             STAGE 3: DEVICE AUDIT & PROTOCOL VERIFICATION
+             ========================================================================== -->
+        <section id="stage3View" style="display: none;">
+
+            <!-- Stage 3 Global Action Bar -->
+            <div class="glass-card"
+                style="padding: 14px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(15, 23, 42, 0.75);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="font-size: 1.2rem;">⚡</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.95rem; color: #f8fafc;">Live Verification & Automated
+                            Audit Trigger</div>
+                        <div style="font-size: 0.78rem; color: var(--text-dim);">Execute real-time CLI verification
+                            commands, auto-update task statuses, and save outputs to <code>files/...</code></div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <button class="btn"
+                        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 700;"
+                        onclick="openAuditTriggerModal('all')">
+                        ⚡ Trigger All Devices Live Audit
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadAuditFiles('all')">
+                        📥 Download .cfg Archives
+                    </button>
+                    <button class="btn btn-secondary" onclick="openExecutiveReportModal()"
+                        style="background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+                        📑 Executive Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stage 3 Live Execution Floating Progress Drawer (Active during job) -->
+            <div id="stage3LiveDrawer" class="glass-card"
+                style="display: none; padding: 14px 20px; margin-bottom: 16px; border-left: 4px solid #38bdf8; background: #050811;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="spinner-small"></span>
+                        <span id="stage3LiveStatusText"
+                            style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #38bdf8; font-weight: 600;">Executing
+                            audit verification...</span>
+                    </div>
+                    <div id="stage3LiveStats"
+                        style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #94a3b8;">
+                        0 verified | 0 failed
+                    </div>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div id="stage3LiveProgressBar"
+                        style="width: 0%; height: 100%; background: linear-gradient(90deg, #38bdf8, #10b981); transition: width 0.3s ease;">
+                    </div>
+                </div>
+                <div id="stage3LiveCommandLog"
+                    style="font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: #64748b; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                </div>
+            </div>
+
+            <!-- Stage 3 Metrics Bar -->
+            <div class="audit-metrics-bar glass-card" style="padding: 16px 24px;">
+
+                <div class="metrics-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 0;">
+                    <div class="metric-card">
+                        <label>Total Devices</label>
+                        <div class="metric-val" id="s3TotalDevices" style="color: var(--secondary);">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <label>Total Tasks</label>
+                        <div class="metric-val" id="s3TotalTasks" style="color: var(--accent);">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <label>Completed</label>
+                        <div class="metric-val" id="s3CompletedTasks" style="color: var(--success);">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <label>Failed</label>
+                        <div class="metric-val" id="s3FailedTasks" style="color: var(--danger);">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <label>Completion %</label>
+                        <div class="metric-val" id="s3CompletionPct" style="color: #a78bfa;">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2-Column Audit Workbench -->
+            <div class="audit-workbench">
+
+                <!-- Left Column: Device Selector -->
+                <div class="audit-device-panel glass-card">
+                    <div style="margin-bottom: 16px;">
+                        <div class="section-title" style="font-size: 1rem; margin-bottom: 10px;">🖧 Network Devices
+                        </div>
+                        <input type="text" id="auditDeviceSearch" placeholder="🔍 Search by hostname, role, vendor..."
+                            style="width: 100%; font-size: 0.88rem;" oninput="searchAuditDevices(this.value)">
+                    </div>
+                    <div id="auditDeviceList" class="audit-device-list">
+                        <!-- Injected by app.js -->
+                    </div>
+                </div>
+
+                <!-- Right Column: Task Checklist -->
+                <div class="audit-task-panel glass-card">
+                    <div id="auditTaskHeader" class="audit-task-header">
+                        <div style="text-align: center; padding: 60px 20px; color: var(--text-dim);">
+                            <div style="font-size: 3rem; margin-bottom: 12px;">📋</div>
+                            <div style="font-size: 1.1rem; font-weight: 600;">Select a device from the left panel</div>
+                            <div style="font-size: 0.88rem; margin-top: 6px;">Protocol audit tasks and CLI verification
+                                commands will appear here.</div>
+                        </div>
+                    </div>
+                    <div id="auditProtocolFilters" class="audit-protocol-filters" style="display: none;"></div>
+                    <div id="auditTaskList" class="audit-task-list"></div>
+                </div>
+
+            </div>
+
+            <!-- Consolidated Protocol Verification Matrix -->
+            <div class="glass-card" style="margin-top: 24px;">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">📊 Consolidated Protocol Verification Matrix</div>
+                        <div class="section-desc">Complete summary of all devices, detected/implemented protocols, and
+                            their verification status across the network infrastructure.</div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn btn-secondary btn-sm" onclick="batchMarkAllVerified()">✅ Mark All
+                            Verified</button>
+                        <button class="btn btn-secondary btn-sm" onclick="refreshAuditMatrix()">🔄 Refresh
+                            Matrix</button>
+                        <button class="btn btn-secondary btn-sm" onclick="openExecutiveReportModal()">📑 Executive
+                            Report</button>
+                        <button class="btn btn-sm" onclick="downloadEvidenceWorkbook()">📥 Export Workbook</button>
+                    </div>
+                </div>
+                <div id="auditMatrixContainer">
+                    <!-- Injected by app.js -->
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- ==========================================================================
+         ADD / EDIT DEVICE MODAL (PAGE 1)
+         ========================================================================== -->
+    <div class="modal-overlay" id="addDeviceModal">
+        <div class="modal-box">
+            <div class="section-header">
+                <div class="section-title" id="deviceModalTitle">➕ Add Network Device (Page 1)</div>
+                <button class="btn btn-secondary btn-sm" onclick="closeAddDeviceModal()">✕</button>
+            </div>
+
+            <input type="hidden" id="editDeviceOriginalId">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Device ID</label>
+                    <input type="text" id="devIdInput" placeholder="DEV-01">
+                </div>
+                <div class="form-group">
+                    <label>Hostname</label>
+                    <input type="text" id="devHostnameInput" placeholder="CORE-SW01">
+                </div>
+                <div class="form-group">
+                    <label>Company Name (Fixed)</label>
+                    <input type="text" id="devCompanyInput" value="Acme Corp" readonly
+                        style="background: rgba(15, 23, 42, 0.6); color: var(--secondary); cursor: not-allowed; opacity: 0.9;">
+                </div>
+                <div class="form-group">
+                    <label>Vendor</label>
+                    <select id="devVendorSelect">
+                        <option value="Cisco">Cisco</option>
+                        <option value="Arista">Arista</option>
+                        <option value="Juniper">Juniper</option>
+                        <option value="Fortinet">Fortinet</option>
+                        <option value="Palo Alto">Palo Alto</option>
+                        <option value="Aruba">Aruba</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Hardware Model</label>
+                    <select id="devModelSelect" onchange="handleModelSelectChange()">
+                        <!-- Dynamically populated from vendor platform profiles -->
+                    </select>
+                    <input type="text" id="devModelCustomInput" placeholder="Enter custom hardware model..."
+                        style="display: none; margin-top: 6px; font-size: 0.85rem;">
+                </div>
+                <div class="form-group">
+                    <label>OS / Version</label>
+                    <input type="text" id="devOsInput" value="IOS-XE 17.9" placeholder="IOS-XE 17.9">
+                </div>
+                <div class="form-group">
+                    <label>Device Function (Section 1.3)</label>
+                    <select id="devFunctionSelect">
+                        <option value="L3">L3</option>
+                        <option value="L2">L2</option>
+                        <option value="L2/L3" selected>L2/L3</option>
+                        <option value="Wireless AP">Wireless AP</option>
+                        <option value="Firewall">Firewall</option>
+                        <option value="Edge/WAN">Edge/WAN</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Device Role (Section 1.2)</label>
+                    <select id="devRoleSelect">
+                        <option value="Core">Core</option>
+                        <option value="Distribution">Distribution</option>
+                        <option value="Access" selected>Access</option>
+                        <option value="Leaf">Leaf</option>
+                        <option value="Spine">Spine</option>
+                        <option value="Firewall">Firewall</option>
+                        <option value="Edge">Edge</option>
+                        <option value="Wireless AP">Wireless AP</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Port Count</label>
+                    <input type="number" id="devPortsInput" value="24" min="1" max="128">
+                </div>
+                <div class="form-group">
+                    <label>Port Speed</label>
+                    <select id="devSpeedSelect">
+                        <option value="1G" selected>1G</option>
+                        <option value="10G">10G</option>
+                        <option value="25G">25G</option>
+                        <option value="40G">40G</option>
+                        <option value="100G">100G</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Management IP</label>
+                    <input type="text" id="devMgmtIpInput" value="10.254.1.10" placeholder="10.254.1.10">
+                </div>
+                <div class="form-group">
+                    <label>Site / Location</label>
+                    <input type="text" id="devSiteInput" value="HQ Data Center" placeholder="HQ Data Center">
+                </div>
+                <div class="form-group">
+                    <label>Serial Number</label>
+                    <input type="text" id="devSerialInput" value="SN-9823412" placeholder="SN-9823412">
+                </div>
+                <div class="form-group">
+                    <label>Lifecycle Status</label>
+                    <select id="devLifecycleSelect">
+                        <option value="Active" selected>Active</option>
+                        <option value="EOL">EOL</option>
+                        <option value="EOS">EOS</option>
+                        <option value="Planned">Planned</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeAddDeviceModal()">Cancel</button>
+                <button class="btn" onclick="saveNewDevice()">Save Device</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         EDIT PORT-CHANNEL MODAL (PAGE 2)
+         ========================================================================== -->
+    <div class="modal-overlay" id="editPortChannelModal">
+        <div class="modal-box">
+            <div class="section-header">
+                <div class="section-title">✏️ Edit Port-Channel Group (Page 2)</div>
+                <button class="btn btn-secondary btn-sm" onclick="closeEditPortChannelModal()">✕</button>
+            </div>
+
+            <input type="hidden" id="editPoOriginalId">
+
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="form-group">
+                    <label>Port-Channel Group ID</label>
+                    <input type="text" id="editPoIdInput" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Protocol</label>
+                    <select id="editPoProtocolSelect">
+                        <option value="LACP">LACP (Dynamic)</option>
+                        <option value="Static">Static / Manual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Source Device</label>
+                    <input type="text" id="editPoSrcDevice" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Target Device</label>
+                    <input type="text" id="editPoTgtDevice" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Source Member Ports (Comma Separated)</label>
+                    <input type="text" id="editPoSrcPortsInput" placeholder="Eth1, Eth2">
+                </div>
+                <div class="form-group">
+                    <label>Target Member Ports (Comma Separated)</label>
+                    <input type="text" id="editPoTgtPortsInput" placeholder="Eth49, Eth50">
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeEditPortChannelModal()">Cancel</button>
+                <button class="btn" onclick="saveEditedPortChannel()">Update Port-Channel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         EVIDENCE NOTES MODAL (PAGE 3)
+         ========================================================================== -->
+    <div class="modal-overlay" id="evidenceNotesModal">
+        <div class="modal-box" style="max-width: 600px;">
+            <div class="section-header">
+                <div class="section-title">📝 Evidence Notes & CLI Output</div>
+                <button class="btn btn-secondary btn-sm" onclick="closeEvidenceModal()">✕</button>
+            </div>
+            <input type="hidden" id="evidenceTaskId">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label>CLI Output / Operational Evidence</label>
+                <textarea id="evidenceOutputField" rows="6" placeholder="Paste CLI output here..."></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Engineer Notes</label>
+                <textarea id="evidenceNotesField" rows="4" placeholder="Add verification notes..."></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="btn btn-secondary" onclick="closeEvidenceModal()">Cancel</button>
+                <button class="btn" onclick="saveEvidenceNotes()">💾 Save Evidence</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         START NEW PROJECT / QUICK SETUP MODAL (BLANK FILE)
+         ========================================================================== -->
+    <div class="modal-overlay" id="newProjectModal">
+        <div class="modal-box" style="max-width: 650px; border-top: 4px solid #38bdf8;">
+            <div class="section-header" style="margin-bottom: 18px;">
+                <div>
+                    <div class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                        <span>✨ START NEW PROJECT / QUICK SETUP</span>
+                    </div>
+                    <div class="section-desc" style="margin-top: 4px;">
+                        Define project parameters to initialize a clean audit workbook and workspace.
+                    </div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="closeNewFileModal()">✕</button>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #93c5fd;">
+                            COMPANY NAME
+                        </label>
+                        <input type="text" id="newCompanyInput" value="Acme Corp" placeholder="e.g. Acme Corp" style="height: 42px; font-size: 0.95rem;">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #93c5fd;">
+                            SITE / LOCATION
+                        </label>
+                        <input type="text" id="newSiteInput" value="HQ Primary load" placeholder="e.g. HQ Primary load" style="height: 42px; font-size: 0.95rem;">
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="btn btn-secondary" onclick="closeNewFileModal()">Cancel</button>
+                <button class="btn" onclick="submitNewProject()" style="font-weight: 600; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);">
+                    ✨ Create Blank File
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         EXECUTIVE SUMMARY REPORT MODAL
+         ========================================================================== -->
+    <div class="modal-overlay" id="executiveReportModal">
+        <div class="modal-box"
+            style="max-width: 1180px; width: 95%; height: 92vh; display: flex; flex-direction: column; padding: 20px;">
+            <div class="section-header" style="margin-bottom: 12px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                        <span>📑 Enterprise Report Generator</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                        Generate publication-grade management decision documents or technical evidence workbooks
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <a href="/api/export/executive/html" target="_blank" id="btnReportNewTab" class="btn btn-secondary btn-sm" title="Open full report in a new tab">
+                        ↗️ Open in New Tab
+                    </a>
+                    <button class="btn btn-secondary btn-sm" onclick="closeExecutiveReportModal()" title="Close">✕</button>
+                </div>
+            </div>
+
+            <!-- Report Generator Controls Bar (Responsive Compact Layout, No Scrollbar) -->
+            <div class="report-controls-bar" style="display: flex; gap: 8px 12px; background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border-accent); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 12px; flex-shrink: 0; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                
+                <!-- Left: Configuration Selectors -->
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <!-- Report Type -->
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); white-space: nowrap;">📋 Type:</span>
+                        <select id="reportGenType" class="form-input" style="padding: 4px 6px; font-size: 0.78rem; height: 32px;" onchange="onReportTypeChange()">
+                            <option value="executive">Executive Decision Report</option>
+                            <option value="technical">Technical Audit Evidence</option>
+                            <option value="compliance">Compliance & Posture</option>
+                        </select>
+                    </div>
+
+                    <!-- Format (Dynamically populated based on Type) -->
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); white-space: nowrap;">📁 Format:</span>
+                        <select id="reportGenFormat" class="form-input" style="padding: 4px 6px; font-size: 0.78rem; height: 32px;" onchange="onReportFormatChange()">
+                            <option value="html">HTML / Web View</option>
+                            <option value="docx">Word Document (.docx)</option>
+                            <option value="md">Markdown (.md)</option>
+                        </select>
+                    </div>
+
+                    <!-- Scope -->
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); white-space: nowrap;">🎯 Scope:</span>
+                        <select id="reportGenScope" class="form-input" style="padding: 4px 6px; font-size: 0.78rem; height: 32px;" onchange="onReportScopeChange()">
+                            <option value="all">Entire Infrastructure (All Nodes)</option>
+                            <option value="critical">Critical & High Risk Only</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Right: Action Buttons -->
+                <div style="display: flex; gap: 6px; align-items: center; margin-left: auto;">
+                    <button class="btn btn-secondary btn-sm" id="btnReportPrint" onclick="printReportFrame()" title="Print or Save as PDF">
+                        🖨️ Print
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="btnReportDownload" onclick="downloadSelectedReport()" style="font-weight: 600;" title="Download deliverable file">
+                        📥 Download HTML
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview Frame Container -->
+            <div style="position: relative; width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column;">
+                <iframe id="executiveReportFrame"
+                    style="width: 100%; height: 100%; border: 1px solid var(--border-accent); border-radius: var(--radius-md); background: #f8fafc;"
+                    src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         CUSTOM TOPOLOGY TIERING MODAL (PAGE 2)
+         ========================================================================== -->
+    <div class="modal-overlay" id="customTierModal">
+        <div class="modal-box" style="max-width: 780px;">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">🎛️ Custom Topology Tiering Architecture</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                        Configure custom tier levels, role-to-tier assignments, and custom banner labels for the
+                        topology canvas.
+                    </div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="closeCustomTierModal()">✕</button>
+            </div>
+
+            <!-- Tiering Architecture Quick Presets -->
+            <div style="margin-bottom: 18px;">
+                <div style="font-size: 0.82rem; font-weight: 700; color: var(--secondary); margin-bottom: 8px;">
+                    ⚡ Quick Architectural Presets:
+                </div>
+                <div class="tier-presets-container">
+                    <button type="button" class="tier-preset-chip" onclick="applyTierPreset('3tier')">
+                        🏛️ Standard 3-Tier (Core ➔ Dist ➔ Access)
+                    </button>
+                    <button type="button" class="tier-preset-chip" onclick="applyTierPreset('collapsed')">
+                        🔄 Collapsed Core (Core/Dist ➔ Access)
+                    </button>
+                    <button type="button" class="tier-preset-chip" onclick="applyTierPreset('security_first')">
+                        🛡️ Perimeter First (Security/WAN ➔ Core ➔ Access)
+                    </button>
+                    <button type="button" class="tier-preset-chip" onclick="applyTierPreset('spine_leaf')">
+                        🕸️ Spine-Leaf Fabric (Spine ➔ Leaf ➔ Endpoints)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Tier Hierarchy Flow Visualization Strip -->
+            <div style="margin-bottom: 18px;">
+                <div style="font-size: 0.82rem; font-weight: 700; color: var(--secondary); margin-bottom: 6px;">
+                    📐 Active Tier Hierarchy Preview (Top ➔ Bottom):
+                </div>
+                <div id="customTierHierarchyFlow" class="tier-flow-preview-strip">
+                    <!-- Injected by app.js -->
+                </div>
+            </div>
+
+            <!-- Role to Tier Mapping Table -->
+            <div style="margin-bottom: 20px;">
+                <div style="font-size: 0.82rem; font-weight: 700; color: var(--secondary); margin-bottom: 8px;">
+                    🏷️ Device Role & Category Tier Mappings:
+                </div>
+                <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+                    <table class="data-table" id="customTierMappingTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">Device Role / Category</th>
+                                <th style="width: 14%; text-align: center;">Nodes</th>
+                                <th style="width: 24%;">Assigned Tier Layer</th>
+                                <th style="width: 40%;">Custom Tier Band Label</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customTierMappingTbody">
+                            <!-- Injected dynamically by renderCustomTierModal() -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                <button class="btn btn-secondary btn-sm" onclick="resetCustomTiering()">↺ Reset to Defaults</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="closeCustomTierModal()">Cancel</button>
+                    <button class="btn" onclick="applyCustomTiering()">✨ Apply Custom Tiering</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODULAR TEST SCENARIOS & VENDOR PLATFORM STUDIO MODAL
+         ========================================================================== -->
+    <div class="modal-overlay" id="catalogStudioModal">
+        <div class="modal-box"
+            style="max-width: 1100px; height: 90vh; display: flex; flex-direction: column; padding: 24px;">
+            <div class="section-header" style="margin-bottom: 14px; flex-shrink: 0;">
+                <div>
+                    <div class="section-title">⚙️ Modular Test Scenario & Vendor Platform Studio</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                        Manage multi-vendor test scenario checklists, CLI verification show commands, hardware
+                        platforms, and port rules without writing code.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary btn-sm" onclick="resetAllCatalogsToDefaults()"
+                        title="Reset to Factory Presets">↺ Reset Factory Defaults</button>
+                    <button class="btn btn-secondary btn-sm" onclick="closeCatalogStudioModal()">✕</button>
+                </div>
+            </div>
+
+            <!-- Studio Navigation Tabs -->
+            <div class="catalog-studio-tabs" style="margin-bottom: 16px; flex-shrink: 0;">
+                <button class="catalog-tab-btn active" id="tabBtnVendors" onclick="switchCatalogTab('vendors')">
+                    🏢 Vendor & Platform Profiles (<span id="studioVendorCount">0</span>)
+                </button>
+                <button class="catalog-tab-btn" id="tabBtnScenarios" onclick="switchCatalogTab('scenarios')">
+                    📋 Test Scenarios & CLI Commands (<span id="studioScenarioCount">0</span>)
+                </button>
+            </div>
+
+            <!-- TAB 1: VENDOR & PLATFORM PROFILES CONTENT -->
+            <div id="catalogVendorsTabContent" class="catalog-tab-pane active"
+                style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; flex-shrink: 0;">
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">
+                        Configure hardware vendors, supported platforms/models, default operating systems, and port
+                        naming prefixes.
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-sm" onclick="triggerVendorJsonImport()">📥 Import
+                            JSON</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportVendorJson()">📤 Export JSON</button>
+                        <button class="btn btn-sm" onclick="openAddVendorModal()">➕ Add Vendor Profile</button>
+                    </div>
+                </div>
+
+                <!-- Vendor Profile Cards Grid -->
+                <div id="studioVendorsGrid" class="vendor-cards-grid"
+                    style="flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; padding: 4px;">
+                    <!-- Injected dynamically by app.js -->
+                </div>
+            </div>
+
+            <!-- TAB 2: TEST SCENARIOS CONTENT -->
+            <div id="catalogScenariosTabContent" class="catalog-tab-pane"
+                style="flex: 1; display: none; flex-direction: column; overflow: hidden;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; flex-shrink: 0;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="scenarioSearchInput"
+                            placeholder="🔍 Search test scenarios by title, protocol, ID..."
+                            oninput="filterStudioScenarios()"
+                            style="width: 320px; font-size: 0.85rem; padding: 6px 12px;">
+                        <select id="scenarioCategoryFilter" onchange="filterStudioScenarios()"
+                            style="font-size: 0.85rem; padding: 6px 10px;">
+                            <option value="">All Categories</option>
+                            <option value="Device Health & Baseline">Device Health & Baseline</option>
+                            <option value="Interface & Physical Layer">Interface & Physical Layer</option>
+                            <option value="Layer 2 Switching">Layer 2 Switching</option>
+                            <option value="Layer 3 Routing">Layer 3 Routing</option>
+                            <option value="Gateway Redundancy">Gateway Redundancy</option>
+                            <option value="Security & Firewall">Security & Firewall</option>
+                            <option value="Wireless Infrastructure">Wireless Infrastructure</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary btn-sm" onclick="triggerScenarioJsonImport()">📥 Import
+                            JSON</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportScenarioJson()">📤 Export JSON</button>
+                        <button class="btn btn-sm" onclick="openAddScenarioModal()">➕ Add Test Scenario</button>
+                    </div>
+                </div>
+
+                <!-- Scenario List Table -->
+                <div class="table-responsive"
+                    style="flex: 1; overflow-y: auto; border: 1px solid var(--border-accent); border-radius: var(--radius-md);">
+                    <table class="data-table" id="studioScenariosTable">
+                        <thead style="position: sticky; top: 0; background: #0f172a; z-index: 2;">
+                            <tr>
+                                <th style="width: 12%;">ID</th>
+                                <th style="width: 14%;">Protocol / Domain</th>
+                                <th style="width: 22%;">Test Checklist Title</th>
+                                <th style="width: 10%; text-align: center;">Severity</th>
+                                <th style="width: 30%;">Multi-Vendor CLI Show Commands</th>
+                                <th style="width: 12%; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studioScenariosTbody">
+                            <!-- Injected dynamically by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB-MODAL: ADD / EDIT TEST SCENARIO -->
+    <div class="modal-overlay" id="editScenarioModal" style="z-index: 1100;">
+        <div class="modal-box" style="max-width: 780px; max-height: 88vh; overflow-y: auto;">
+            <div class="section-header">
+                <div class="section-title" id="editScenarioModalTitle">➕ Add New Audit Test Scenario</div>
+                <button class="btn btn-secondary btn-sm" onclick="closeEditScenarioModal()">✕</button>
+            </div>
+
+            <div class="builder-5col-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div class="form-group">
+                    <label>Scenario ID</label>
+                    <input type="text" id="modalScenId" placeholder="e.g. TS-OSPF-02">
+                </div>
+                <div class="form-group">
+                    <label>Protocol / Feature</label>
+                    <input type="text" id="modalScenProtocol" placeholder="e.g. OSPF, BGP, VLAN, STP">
+                </div>
+            </div>
+
+            <div class="builder-5col-grid" style="grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div class="form-group">
+                    <label>Audit Domain Category</label>
+                    <select id="modalScenCategory">
+                        <option value="Device Health & Baseline">Device Health & Baseline</option>
+                        <option value="Interface & Physical Layer">Interface & Physical Layer</option>
+                        <option value="Layer 2 Switching">Layer 2 Switching</option>
+                        <option value="Layer 3 Routing">Layer 3 Routing</option>
+                        <option value="Gateway Redundancy">Gateway Redundancy</option>
+                        <option value="Security & Firewall">Security & Firewall</option>
+                        <option value="Wireless Infrastructure">Wireless Infrastructure</option>
+                        <option value="WAN, Overlay & Traffic Policy">WAN, Overlay & Traffic Policy</option>
+                        <option value="Custom Domain">Custom Domain</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Severity Level</label>
+                    <select id="modalScenSeverity">
+                        <option value="Critical">Critical</option>
+                        <option value="High" selected>High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label>Test Checklist Title</label>
+                <input type="text" id="modalScenTitle" placeholder="e.g. OSPF Area 0 Backbone & Timers Consistency">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label>Description / Audit Objective</label>
+                <textarea id="modalScenDesc" rows="2"
+                    placeholder="Describe what the engineer should verify..."></textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label>Remediation Recommendation</label>
+                <input type="text" id="modalScenRec" placeholder="Recommended fix if test verification fails">
+            </div>
+
+            <!-- Multi-Vendor CLI Commands Mapping -->
+            <div style="margin-top: 14px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="font-weight: 700; color: var(--secondary); margin-bottom: 0; display: block;">
+                        💻 Vendor-Specific CLI Verification Commands (`show` commands):
+                    </label>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Dynamically synced with all Vendor Profiles</span>
+                </div>
+                <div id="modalVendorCmdsList" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 4px;">
+                    <!-- Rendered dynamically by app.js renderVendorCmdFields() -->
+                </div>
+            </div>
+
+            <div
+                style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
+                <button class="btn btn-secondary" onclick="closeEditScenarioModal()">Cancel</button>
+                <button class="btn" onclick="saveScenarioFromModal()">💾 Save Test Scenario</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB-MODAL: ADD / EDIT VENDOR PROFILE -->
+    <div class="modal-overlay" id="editVendorModal" style="z-index: 1100;">
+        <div class="modal-box" style="max-width: 650px;">
+            <div class="section-header">
+                <div class="section-title" id="editVendorModalTitle">➕ Add Vendor Profile</div>
+                <button class="btn btn-secondary btn-sm" onclick="closeEditVendorModal()">✕</button>
+            </div>
+
+            <div class="builder-5col-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div class="form-group">
+                    <label>Vendor Short Name</label>
+                    <input type="text" id="modalVenName" placeholder="e.g. Huawei, Mikrotik">
+                </div>
+                <div class="form-group">
+                    <label>Display Name</label>
+                    <input type="text" id="modalVenDisplayName" placeholder="e.g. Huawei Enterprise">
+                </div>
+            </div>
+
+            <div class="builder-5col-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div class="form-group">
+                    <label>Default OS / Version</label>
+                    <input type="text" id="modalVenOs" placeholder="e.g. VRP V200R019">
+                </div>
+                <div class="form-group">
+                    <label>Port Interface Prefix</label>
+                    <input type="text" id="modalVenPortPrefix" placeholder="e.g. 10GE1/0/, GigabitEthernet1/0/, Port">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label>Platforms / Hardware Models (comma-separated)</label>
+                <input type="text" id="modalVenPlatforms" placeholder="e.g. CloudEngine 6800, S5735, S6730">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label>Supported Port Speeds (comma-separated)</label>
+                <input type="text" id="modalVenSpeeds" value="1G, 10G, 25G, 40G, 100G"
+                    placeholder="1G, 10G, 25G, 40G, 100G">
+            </div>
+
+            <div
+                style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
+                <button class="btn btn-secondary" onclick="closeEditVendorModal()">Cancel</button>
+                <button class="btn" onclick="saveVendorFromModal()">💾 Save Vendor Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STAGE 3 AUDIT TRIGGER MODAL (Zero-Storage Ephemeral Credentials) -->
+    <div class="modal-overlay" id="auditTriggerModal" style="z-index: 1200;">
+        <div class="modal-box" style="max-width: 580px;">
+            <div class="section-header" style="margin-bottom: 12px;">
+                <div>
+                    <div class="section-title" id="auditTriggerModalTitle">⚡ Trigger Live Audit Commands</div>
+                    <div class="section-desc" id="auditTriggerModalSubtitle">Execute verification commands and stream
+                        results live.</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="closeAuditTriggerModal()">✕</button>
+            </div>
+
+            <div
+                style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 16px; font-size: 0.8rem; color: #34d399; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.2rem;">🔒</span>
+                <div>
+                    <strong>Zero-Storage Ephemeral Security</strong>: Credentials are held strictly in temporary RAM for
+                    this execution session and erased immediately upon completion.
+                </div>
+            </div>
+
+            <input type="hidden" id="triggerScope" value="all">
+            <input type="hidden" id="triggerTargetHostname" value="">
+            <input type="hidden" id="triggerTargetSection" value="">
+            <input type="hidden" id="triggerTargetTaskId" value="">
+
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label>Authentication Protocol</label>
+                <select id="triggerAuthType" onchange="toggleAuditTriggerAuthFields()" style="width: 100%;">
+                    <option value="password">SSH Username & Password / Enable Secret</option>
+                    <option value="key">SSH Private Key & Passphrase</option>
+                    <option value="api_token">REST API Bearer Token / Meraki API Key</option>
+                </select>
+            </div>
+
+            <div id="triggerFieldUsername" class="form-group" style="margin-bottom: 12px;">
+                <label>Username</label>
+                <input type="text" id="triggerUsername" placeholder="e.g. admin, cisco, netadmin" value="admin">
+            </div>
+
+            <div id="triggerFieldPassword" class="form-group" style="margin-bottom: 12px;">
+                <label>Password</label>
+                <input type="password" id="triggerPassword" placeholder="Enter device SSH password">
+            </div>
+
+            <div id="triggerFieldSecret" class="form-group" style="margin-bottom: 12px;">
+                <label>Enable Secret (Optional for Cisco/Privileged Exec)</label>
+                <input type="password" id="triggerSecret" placeholder="Enable password if required">
+            </div>
+
+            <div id="triggerFieldKey" class="form-group" style="margin-bottom: 12px; display: none;">
+                <label>SSH Private Key (RSA / OpenSSH PEM)</label>
+                <textarea id="triggerSshKey" rows="4" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----..."
+                    style="font-family: monospace; font-size: 0.78rem;"></textarea>
+            </div>
+
+            <div id="triggerFieldToken" class="form-group" style="margin-bottom: 14px; display: none;">
+                <label>API Key / Bearer Token</label>
+                <input type="password" id="triggerApiToken" placeholder="Enter API Token or Cisco Meraki API Key">
+            </div>
+
+            <div id="triggerFieldCustomCommand" class="form-group" style="margin-bottom: 14px; display: none;">
+                <label>Verification Command (Editable CLI Command)</label>
+                <input type="text" id="triggerCustomCommand" placeholder="e.g. show version"
+                    style="font-family: monospace; font-size: 0.85rem;">
+            </div>
+
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 14px; margin-top: 12px;">
+                <div style="font-size: 0.78rem; color: var(--text-dim);">
+                    Output: <code>files/&lt;company&gt;/&lt;building&gt;/&lt;date&gt;/...</code>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="closeAuditTriggerModal()">Cancel</button>
+                    <button class="btn"
+                        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 700;"
+                        onclick="executeLiveAuditTrigger()">
+                        🚀 Run Live Audit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js?v=2.8"></script>
+</body>
+
+</html>

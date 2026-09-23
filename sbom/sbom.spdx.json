@@ -1,0 +1,243 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "Enterprise-Network-Audit-Platform-SBOM",
+  "documentNamespace": "https://github.com/Prakash-103/network-audit-tool/sbom/spdx-2.3-v1.0.0",
+  "creationInfo": {
+    "creators": [
+      "Tool: Manual-SBOM-Generator-1.0",
+      "Person: Prakash N"
+    ],
+    "created": "2026-09-23T05:00:00Z"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-Root",
+      "name": "Enterprise Network Infrastructure Audit Platform",
+      "versionInfo": "1.0.0",
+      "downloadLocation": "https://github.com/Prakash-103/network-audit-tool",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Prakash N",
+      "description": "Multi-vendor enterprise network infrastructure auditing platform for discovery, configuration verification, and topology compliance."
+    },
+    {
+      "SPDXID": "SPDXRef-Package-fastapi",
+      "name": "fastapi",
+      "versionInfo": "0.115.0",
+      "downloadLocation": "https://pypi.org/project/fastapi/",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright (c) 2018 Sebastián Ramírez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/fastapi@0.115.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-uvicorn",
+      "name": "uvicorn",
+      "versionInfo": "0.30.0",
+      "downloadLocation": "https://pypi.org/project/uvicorn/",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "copyrightText": "Copyright (c) Encode OSS Ltd",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/uvicorn@0.30.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-netmiko",
+      "name": "netmiko",
+      "versionInfo": "4.3.0",
+      "downloadLocation": "https://pypi.org/project/netmiko/",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright (c) 2014 Kirk Byers",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/netmiko@4.3.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-paramiko",
+      "name": "paramiko",
+      "versionInfo": "3.4.0",
+      "downloadLocation": "https://pypi.org/project/paramiko/",
+      "licenseConcluded": "LGPL-2.1-or-later",
+      "licenseDeclared": "LGPL-2.1-or-later",
+      "copyrightText": "Copyright (c) Robey Pointer and Jeff Forcier",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/paramiko@3.4.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-openpyxl",
+      "name": "openpyxl",
+      "versionInfo": "3.1.0",
+      "downloadLocation": "https://pypi.org/project/openpyxl/",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright (c) 2010 openpyxl",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/openpyxl@3.1.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-jinja2",
+      "name": "jinja2",
+      "versionInfo": "3.1.0",
+      "downloadLocation": "https://pypi.org/project/jinja2/",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "copyrightText": "Copyright (c) Pallets",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/jinja2@3.1.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-pyyaml",
+      "name": "pyyaml",
+      "versionInfo": "6.0",
+      "downloadLocation": "https://pypi.org/project/pyyaml/",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright (c) 2006-2016 Kirill Simonov",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/pyyaml@6.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-pydantic",
+      "name": "pydantic",
+      "versionInfo": "2.0.0",
+      "downloadLocation": "https://pypi.org/project/pydantic/",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright (c) 2017 Samuel Colvin",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/pydantic@2.0.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-python-multipart",
+      "name": "python-multipart",
+      "versionInfo": "0.0.9",
+      "downloadLocation": "https://pypi.org/project/python-multipart/",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright (c) Andrew Dunai",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/python-multipart@0.0.9"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-requests",
+      "name": "requests",
+      "versionInfo": "2.31.0",
+      "downloadLocation": "https://pypi.org/project/requests/",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright (c) 2019 Kenneth Reitz",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/requests@2.31.0"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-Root"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-fastapi"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-uvicorn"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-netmiko"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-paramiko"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-openpyxl"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-jinja2"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-pyyaml"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-pydantic"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-python-multipart"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-requests"
+    }
+  ]
+}

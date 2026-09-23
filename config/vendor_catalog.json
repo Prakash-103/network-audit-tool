@@ -1,0 +1,236 @@
+{
+  "vendors": [
+    {
+      "name": "Cisco",
+      "display_name": "Cisco Systems",
+      "platforms": [
+        "Catalyst 9300",
+        "Catalyst 9500",
+        "Catalyst 9200",
+        "Catalyst 9600",
+        "Nexus 9000",
+        "Nexus 7000",
+        "Nexus 5000",
+        "ISR 4451-X",
+        "ISR 4331",
+        "ASR 1001-X",
+        "Catalyst 9800 WLC"
+      ],
+      "default_os_version": "IOS-XE 17.9",
+      "port_prefix": "GigabitEthernet1/0/",
+      "default_port_type": "GigabitEthernet",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "25G",
+        "40G",
+        "100G",
+        "400G"
+      ],
+      "cli_prompt_suffix": "#"
+    },
+    {
+      "name": "Arista",
+      "display_name": "Arista Networks",
+      "platforms": [
+        "DCS-7050SX3",
+        "DCS-7280R3",
+        "DCS-7060CX",
+        "DCS-7150S",
+        "DCS-7010T"
+      ],
+      "default_os_version": "EOS 4.28",
+      "port_prefix": "Ethernet",
+      "default_port_type": "Ethernet",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "25G",
+        "40G",
+        "100G",
+        "400G"
+      ],
+      "cli_prompt_suffix": "#"
+    },
+    {
+      "name": "Juniper",
+      "display_name": "Juniper Networks",
+      "platforms": [
+        "QFX5100",
+        "QFX5200",
+        "EX4300",
+        "EX3400",
+        "MX204",
+        "MX480",
+        "SRX345",
+        "SRX1500"
+      ],
+      "default_os_version": "Junos 21.4R1",
+      "port_prefix": "ge-0/0/",
+      "default_port_type": "GigabitEthernet",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "25G",
+        "40G",
+        "100G"
+      ],
+      "cli_prompt_suffix": ">"
+    },
+    {
+      "name": "Palo Alto",
+      "display_name": "Palo Alto Networks",
+      "platforms": [
+        "PA-3220",
+        "PA-5220",
+        "PA-850",
+        "PA-440",
+        "PA-1410",
+        "PA-VM"
+      ],
+      "default_os_version": "PAN-OS 10.2",
+      "port_prefix": "Port",
+      "default_port_type": "GigabitEthernet",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "40G",
+        "100G"
+      ],
+      "cli_prompt_suffix": ">"
+    },
+    {
+      "name": "Fortinet",
+      "display_name": "Fortinet FortiGate",
+      "platforms": [
+        "FortiGate 100F",
+        "FortiGate 200F",
+        "FortiGate 60F",
+        "FortiGate 600E",
+        "FortiGate VM"
+      ],
+      "default_os_version": "FortiOS 7.2",
+      "port_prefix": "port",
+      "default_port_type": "GigabitEthernet",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "25G",
+        "40G",
+        "100G"
+      ],
+      "cli_prompt_suffix": "#"
+    },
+    {
+      "name": "Aruba",
+      "display_name": "Aruba / HPE",
+      "platforms": [
+        "CX 6300",
+        "CX 8325",
+        "CX 6200",
+        "AP-515",
+        "AP-535",
+        "AP-635",
+        "7210 Mobility Controller"
+      ],
+      "default_os_version": "AOS-CX 10.10",
+      "port_prefix": "1/1/",
+      "default_port_type": "GigabitEthernet",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "25G",
+        "40G",
+        "100G"
+      ],
+      "cli_prompt_suffix": "#"
+    },
+    {
+      "name": "Huawei",
+      "display_name": "Huawei Enterprise",
+      "platforms": [
+        "CloudEngine 6800",
+        "CloudEngine 12800",
+        "S5735",
+        "S6730",
+        "AR6140 Router",
+        "USG6600 Firewall"
+      ],
+      "default_os_version": "VRP V200R019",
+      "port_prefix": "10GE1/0/",
+      "default_port_type": "10GE",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "25G",
+        "40G",
+        "100G"
+      ],
+      "cli_prompt_suffix": ">"
+    },
+    {
+      "name": "Mikrotik",
+      "display_name": "MikroTik RouterOS",
+      "platforms": [
+        "CCR2004",
+        "CRS326",
+        "CRS328",
+        "RB4011",
+        "CCR1036"
+      ],
+      "default_os_version": "RouterOS v7.10",
+      "port_prefix": "ether",
+      "default_port_type": "Ethernet",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "25G",
+        "40G",
+        "100G"
+      ],
+      "cli_prompt_suffix": "]"
+    },
+    {
+      "name": "Dell",
+      "display_name": "Dell PowerSwitch",
+      "platforms": [
+        "S5248F-ON",
+        "S4148F-ON",
+        "N3248TE-ON",
+        "Z9264F-ON"
+      ],
+      "default_os_version": "SmartFabric OS10",
+      "port_prefix": "ethernet1/1/",
+      "default_port_type": "Ethernet",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "25G",
+        "40G",
+        "100G"
+      ],
+      "cli_prompt_suffix": "#"
+    },
+    {
+      "name": "CheckPoint",
+      "display_name": "Check Point Security",
+      "platforms": [
+        "Quantum 6600",
+        "Quantum 3600",
+        "Quantum Maestro",
+        "CloudGuard IaaS"
+      ],
+      "default_os_version": "Gaia R81.20",
+      "port_prefix": "eth",
+      "default_port_type": "Ethernet",
+      "supported_speeds": [
+        "1G",
+        "10G",
+        "25G",
+        "40G",
+        "100G"
+      ],
+      "cli_prompt_suffix": ">"
+    }
+  ]
+}

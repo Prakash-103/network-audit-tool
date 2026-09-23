@@ -1,0 +1,51 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+env/
+build/
+dist/
+*.egg-info/
+.venv
+venv/
+ENV/
+
+# Environment Variables & Secrets (CRITICAL SECURITY)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+credentials/
+
+# OS / IDE generated files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Audit evidence outputs and runtime collected device logs
+Audit_Evidence_Workbook*.xlsx
+*Audit_Evidence*.xlsx
+collected_logs/
+files/
+customer-data/
+customer-data/*
+audit-results/
+private-reports/
+production-data/
+
+# Application Logs
+*.log
+logs/
+
+# Hosting / Deployment
+.vercel
+scratch/

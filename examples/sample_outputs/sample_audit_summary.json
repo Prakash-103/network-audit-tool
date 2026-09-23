@@ -1,0 +1,42 @@
+{
+  "summary": {
+    "total_checks": 84,
+    "passed": 76,
+    "failed": 8,
+    "compliance_percentage": 90.48,
+    "health_score": 92.5,
+    "evaluated_at": "2026-09-23T16:30:00Z"
+  },
+  "severity_breakdown": {
+    "CRITICAL": 0,
+    "HIGH": 2,
+    "MEDIUM": 4,
+    "LOW": 2,
+    "INFO": 76
+  },
+  "category_scores": {
+    "Architecture & Topology": 95.0,
+    "Layer 2 & Resiliency": 92.0,
+    "Routing & Edge Gateway": 88.5,
+    "Security & Threat Posture": 86.0,
+    "Operational Hygiene & NTP": 95.0
+  },
+  "sample_findings": [
+    {
+      "finding_id": "FIND-001",
+      "severity": "HIGH",
+      "category": "Security & Threat Posture",
+      "title": "Unencrypted Telnet Enabled on Access Switch",
+      "description": "Access switch ACC-02 allows legacy Telnet connections across management interfaces.",
+      "remediation": "Disable 'transport input telnet' and enforce 'transport input ssh' on lines vty 0 15."
+    },
+    {
+      "finding_id": "FIND-002",
+      "severity": "MEDIUM",
+      "category": "Layer 2 & Resiliency",
+      "title": "VLAN Mismatch on Inter-Switch Trunk Link",
+      "description": "Trunk port GigabitEthernet1/0/24 permits VLANs [10, 20] on local side but peer reports [10, 20, 30].",
+      "remediation": "Reconcile allowed VLAN lists across peer interfaces to avoid blackholing tagged traffic."
+    }
+  ]
+}

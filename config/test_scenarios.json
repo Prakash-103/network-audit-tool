@@ -1,0 +1,403 @@
+{
+  "scenarios": [
+    {
+      "id": "TS-HEALTH-01",
+      "protocol": "Basic Health",
+      "category": "Device Health & Baseline",
+      "title": "Device Platform, OS Version & Environmental Health",
+      "description": "Verify hardware model, OS version compliance, uptime, CPU/Memory utilization, power supplies, and fan status.",
+      "condition": "Always Applicable",
+      "severity": "High",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf",
+        "Firewall",
+        "Edge",
+        "Wireless AP",
+        "Other"
+      ],
+      "vendor_commands": {
+        "Cisco": "show version; show environment all; show processes cpu; show ntp status; show logging",
+        "Arista": "show version; show environment all; show ntp status; show processes top",
+        "Juniper": "show version; show chassis environment; show ntp associations",
+        "Palo Alto": "show system info; show system resources; show ntp; show admins",
+        "Fortinet": "get system status; get system performance status; get system ntp",
+        "Aruba": "show system; show version; show environment; show ap database",
+        "Huawei": "display version; display environment; display cpu-usage; display memory",
+        "Mikrotik": "/system resource print; /system routerboard print; /system health print",
+        "Dell": "show version; show environment; show processes cpu",
+        "CheckPoint": "show version all; show asset all; show sysenv all",
+        "Default": "show version; show environment; show processes"
+      },
+      "recommendation": "Maintain vendor-recommended stable golden image OS and replace faulty environmental hardware."
+    },
+    {
+      "id": "TS-HEALTH-02",
+      "protocol": "Management Security",
+      "category": "Device Health & Baseline",
+      "title": "Management Protocol Synchronization (NTP, DNS, Syslog, SNMP, AAA)",
+      "description": "Validate NTP clock synchronization, primary/secondary DNS servers, remote syslog logging, and SNMP trap communities.",
+      "condition": "Always Applicable",
+      "severity": "Medium",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf",
+        "Firewall",
+        "Edge",
+        "Wireless AP",
+        "Other"
+      ],
+      "vendor_commands": {
+        "Cisco": "show line vty 0 4; show aaa servers; show ntp status; show snmp group",
+        "Arista": "show aaa; show ssh; show ntp status; show snmp",
+        "Juniper": "show system ntp; show system radius-server; show snmp",
+        "Palo Alto": "show admins; show ntp; show snmp info; show system services",
+        "Fortinet": "get system admin status; get system snmp sysinfo; get system ntp",
+        "Aruba": "show aaa authentication; show ntp servers; show snmp-server",
+        "Huawei": "display ntp status; display radius-server configuration; display snmp-agent sys-info",
+        "Default": "show ntp; show snmp; show aaa"
+      },
+      "recommendation": "Enforce synchronized NTP across all nodes and configure redundant AAA/Syslog servers."
+    },
+    {
+      "id": "TS-IFACE-01",
+      "protocol": "Interfaces",
+      "category": "Interface & Physical Layer",
+      "title": "Physical Interface Operational State & Speed/Duplex",
+      "description": "Verify admin/operational status, auto-negotiation, port speed, MTU consistency, and interface descriptions.",
+      "condition": "Connected Ports Active",
+      "severity": "Critical",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf",
+        "Firewall",
+        "Edge",
+        "Wireless AP",
+        "Other"
+      ],
+      "vendor_commands": {
+        "Cisco": "show interfaces status; show interfaces description; show ip interface brief",
+        "Arista": "show interfaces status; show interfaces description",
+        "Juniper": "show interfaces terse; show interfaces descriptions",
+        "Palo Alto": "show interface all; show interface logical",
+        "Fortinet": "get system interface; diagnose hardware deviceinfo nic",
+        "Aruba": "show interface brief; show interface port-utilization",
+        "Huawei": "display interface brief; display interface description",
+        "Default": "show interfaces status; show interface brief"
+      },
+      "recommendation": "Resolve mismatched link speeds, correct interface MTU across peer links, and document descriptions."
+    },
+    {
+      "id": "TS-IFACE-02",
+      "protocol": "Interfaces",
+      "category": "Interface & Physical Layer",
+      "title": "Interface Counter Errors, Drops & CRC Health",
+      "description": "Verify absence of alignment errors, FCS/CRC error increments, packet discards, collisions, and err-disabled states.",
+      "condition": "All Interfaces",
+      "severity": "High",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf",
+        "Firewall",
+        "Edge",
+        "Other"
+      ],
+      "vendor_commands": {
+        "Cisco": "show interfaces counters errors; show interfaces | include CRC|drops",
+        "Arista": "show interfaces counters errors; show interfaces counters discards",
+        "Juniper": "show interfaces extensive | match (error|drop|crc)",
+        "Palo Alto": "show interface counters; show counter global",
+        "Fortinet": "diagnose netlink interface list; diagnose hardware nic",
+        "Aruba": "show interface errors-counters",
+        "Huawei": "display interface counters error; display interface | include CRC",
+        "Default": "show interfaces counters errors"
+      },
+      "recommendation": "Inspect physical cabling, clean optical transceivers, and reset err-disabled interfaces."
+    },
+    {
+      "id": "TS-CDP-01",
+      "protocol": "CDP",
+      "category": "Topology & Discovery",
+      "title": "CDP Neighbor Adjacency & Expected Peer Topology Match",
+      "description": "Verify CDP neighbor table against physical topology design. Ensure local interface, remote interface, and device platform consistency.",
+      "condition": "CDP Enabled / Expected",
+      "severity": "Medium",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf",
+        "Edge",
+        "Other"
+      ],
+      "vendor_commands": {
+        "Cisco": "show cdp neighbors detail",
+        "Arista": "show cdp neighbors detail",
+        "Juniper": "show cdp neighbor",
+        "Default": "show cdp neighbors detail"
+      },
+      "recommendation": "Ensure CDP is enabled on internal infrastructure links and disabled on external boundary ports."
+    },
+    {
+      "id": "TS-LLDP-01",
+      "protocol": "LLDP",
+      "category": "Topology & Discovery",
+      "title": "LLDP Neighbor Chassis ID & Port Information",
+      "description": "Validate multi-vendor LLDP neighbor table, system capabilities, and remote management address consistency.",
+      "condition": "LLDP Enabled / Expected",
+      "severity": "Medium",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf",
+        "Firewall",
+        "Edge",
+        "Wireless AP",
+        "Other"
+      ],
+      "vendor_commands": {
+        "Cisco": "show lldp neighbors detail",
+        "Arista": "show lldp neighbors detail",
+        "Juniper": "show lldp neighbors extensive",
+        "Palo Alto": "show lldp neighbors",
+        "Fortinet": "diagnose lldp neighbor list",
+        "Aruba": "show lldp info remote-device detail",
+        "Huawei": "display lldp neighbor brief",
+        "Default": "show lldp neighbors detail"
+      },
+      "recommendation": "Standardize LLDP on multi-vendor uplinks and AP connections for automated inventory discovery."
+    },
+    {
+      "id": "TS-VLAN-01",
+      "protocol": "VLAN",
+      "category": "Layer 2 Switching",
+      "title": "VLAN Database, Active VLAN IDs & Name Consistency",
+      "description": "Verify standard VLANs (Data, Voice, Management, Native), ensure active state, and validate cross-switch VLAN consistency.",
+      "condition": "VLAN Configured",
+      "severity": "High",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf",
+        "Wireless AP"
+      ],
+      "vendor_commands": {
+        "Cisco": "show vlan brief; show vlan summary",
+        "Arista": "show vlan; show vlan summary",
+        "Juniper": "show vlans extensive",
+        "Aruba": "show vlan; show vlan summary",
+        "Huawei": "display vlan; display vlan summary",
+        "Default": "show vlan brief"
+      },
+      "recommendation": "Maintain synchronized VLAN IDs and consistent naming across all switching layers."
+    },
+    {
+      "id": "TS-TRUNK-01",
+      "protocol": "Trunk",
+      "category": "Layer 2 Switching",
+      "title": "802.1Q Trunk Status, Native VLAN & Allowed VLAN List",
+      "description": "Verify trunk operational state, consistent native VLAN (non-default VLAN 1), and explicit allowed VLAN filtering on inter-switch uplinks.",
+      "condition": "Interface Mode = Trunk",
+      "severity": "Critical",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf"
+      ],
+      "vendor_commands": {
+        "Cisco": "show interfaces trunk; show interfaces switchport | include Mode|Native",
+        "Arista": "show interfaces trunk",
+        "Juniper": "show ethernet-switching interfaces",
+        "Aruba": "show trunk; show vlans port",
+        "Huawei": "display port vlan; display interface trunk",
+        "Default": "show interfaces trunk"
+      },
+      "recommendation": "Prune unused VLANs on trunk links and change default native VLAN from 1 to a dedicated unused VLAN."
+    },
+    {
+      "id": "TS-STP-01",
+      "protocol": "STP",
+      "category": "Layer 2 Switching",
+      "title": "Spanning-Tree Protocol Mode, Root Bridge & Guard Protection",
+      "description": "Verify STP mode (Rapid-PVST/MST), designated Root Bridge priorities, blocking ports, and BPDU Guard/Root Guard on edge interfaces.",
+      "condition": "STP Active",
+      "severity": "Critical",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf"
+      ],
+      "vendor_commands": {
+        "Cisco": "show spanning-tree summary; show spanning-tree detail | include is the root; show spanning-tree root",
+        "Arista": "show spanning-tree; show spanning-tree root",
+        "Juniper": "show spanning-tree bridge; show spanning-tree interface",
+        "Aruba": "show spanning-tree; show spanning-tree detail",
+        "Huawei": "display stp brief; display stp root",
+        "Default": "show spanning-tree summary"
+      },
+      "recommendation": "Set primary and secondary root bridge priorities explicitly and enable BPDU Guard on all access ports."
+    },
+    {
+      "id": "TS-LACP-01",
+      "protocol": "EtherChannel",
+      "category": "Layer 2 Switching",
+      "title": "EtherChannel Port-Channel Bundling & LACP Negotiation",
+      "description": "Validate member port aggregation, active LACP negotiation, duplex/speed/VLAN consistency across bundled physical links.",
+      "condition": "Port-Channel Configured",
+      "severity": "High",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Access",
+        "Spine",
+        "Leaf"
+      ],
+      "vendor_commands": {
+        "Cisco": "show etherchannel summary; show etherchannel port-channel; show lacp internal",
+        "Arista": "show port-channel summary; show lacp internal",
+        "Juniper": "show interfaces ae terse; show lacp interfaces",
+        "Palo Alto": "show high-availability all",
+        "Fortinet": "get system interface",
+        "Aruba": "show lacp aggregates; show trunk",
+        "Huawei": "display eth-trunk; display lacp statistics-eth-trunk",
+        "Default": "show etherchannel summary; show port-channel summary"
+      },
+      "recommendation": "Standardize on 802.3ad dynamic LACP and verify identical physical port configurations before bundling."
+    },
+    {
+      "id": "TS-OSPF-01",
+      "protocol": "OSPF",
+      "category": "Layer 3 Routing",
+      "title": "OSPF Neighbor Adjacencies, Router-ID & Area Consistency",
+      "description": "Verify OSPF process ID, unique Router-IDs, Full neighbor adjacencies, timer synchronization (Hello/Dead), and passive interfaces.",
+      "condition": "OSPF Routing Configured",
+      "severity": "Critical",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Spine",
+        "Leaf",
+        "Firewall",
+        "Edge"
+      ],
+      "vendor_commands": {
+        "Cisco": "show ip ospf neighbor; show ip ospf interface brief; show ip ospf database",
+        "Arista": "show ip ospf neighbor; show ip ospf interface brief",
+        "Juniper": "show ospf neighbor; show ospf interface",
+        "Palo Alto": "show routing protocol ospf neighbor",
+        "Fortinet": "get router info ospf neighbor; get router info ospf status",
+        "Huawei": "display ospf peer brief; display ospf interface",
+        "Default": "show ip ospf neighbor; show ip ospf interface"
+      },
+      "recommendation": "Ensure unique 32-bit loopback Router-IDs and configure passive-interface default for security."
+    },
+    {
+      "id": "TS-BGP-01",
+      "protocol": "BGP",
+      "category": "Layer 3 Routing",
+      "title": "BGP Peer Session State, AS Numbers & Prefix Exchange",
+      "description": "Verify BGP Established state, local/remote AS numbers, update-source loopback, route-maps, and prefix advertised/received counts.",
+      "condition": "BGP Peering Configured",
+      "severity": "Critical",
+      "roles": [
+        "Core",
+        "Spine",
+        "Edge",
+        "Firewall"
+      ],
+      "vendor_commands": {
+        "Cisco": "show ip bgp summary; show ip bgp neighbors; show ip bgp",
+        "Arista": "show ip bgp summary; show ip bgp neighbors",
+        "Juniper": "show bgp summary; show bgp neighbor",
+        "Palo Alto": "show routing protocol bgp summary; show routing protocol bgp peer",
+        "Fortinet": "get router info bgp summary; get router info bgp neighbors",
+        "Huawei": "display bgp peer; display bgp routing-table",
+        "Default": "show ip bgp summary"
+      },
+      "recommendation": "Configure MD5 authentication on external eBGP peers and apply inbound/outbound route filtering."
+    },
+    {
+      "id": "TS-FHRP-01",
+      "protocol": "HSRP",
+      "category": "Gateway Redundancy",
+      "title": "HSRP / VRRP First Hop Redundancy, Priority & Preemption",
+      "description": "Validate active/standby router roles, Virtual IP (VIP) consistency, priority decrements on uplink failure, and preemption settings.",
+      "condition": "FHRP Configured",
+      "severity": "Critical",
+      "roles": [
+        "Core",
+        "Distribution",
+        "Spine",
+        "Leaf"
+      ],
+      "vendor_commands": {
+        "Cisco": "show standby brief; show standby neighbors; show vrrp brief",
+        "Arista": "show vrrp; show vrrp detail",
+        "Juniper": "show vrrp extensive",
+        "Aruba": "show vrrp; show vrrp detail",
+        "Huawei": "display vrrp brief; display vrrp",
+        "Default": "show standby brief; show vrrp brief"
+      },
+      "recommendation": "Align FHRP active router priorities with primary STP Root Bridge positions to avoid asymmetric routing."
+    },
+    {
+      "id": "TS-FW-01",
+      "protocol": "Firewall Policy",
+      "category": "Security & Firewall",
+      "title": "Firewall Security Policy Rule Base & Any/Any Mitigation",
+      "description": "Audit active firewall rules, source/destination zone constraints, application-ID inspection, and verify no overly broad Any/Any rules.",
+      "condition": "Firewall Rules Configured",
+      "severity": "Critical",
+      "roles": [
+        "Firewall"
+      ],
+      "vendor_commands": {
+        "Palo Alto": "show running security-rule; show zones; show high-availability all",
+        "Fortinet": "show firewall policy; get system ha status; show system interface",
+        "Cisco": "show running-config access-list; show conn count",
+        "CheckPoint": "show running-config; fw stat",
+        "Default": "show firewall policy; show security rules"
+      },
+      "recommendation": "Enforce strict least-privilege security policies, eliminate any/any rules, and enable active logging."
+    },
+    {
+      "id": "TS-WIFI-01",
+      "protocol": "Wireless AP",
+      "category": "Wireless Infrastructure",
+      "title": "Access Point Radio Status, Channel Utilization & SSID Profiles",
+      "description": "Verify AP associations to controller, 2.4GHz/5GHz radio power levels, channel overlap mitigation, and WPA3/802.1X security.",
+      "condition": "Wireless AP Configured",
+      "severity": "High",
+      "roles": [
+        "Wireless AP"
+      ],
+      "vendor_commands": {
+        "Aruba": "show ap database; show wlan summary; show ap radio-summary; show ap active",
+        "Cisco": "show ap summary; show wlan summary; show ap dot11 5ghz summary; show ap dot11 24ghz summary",
+        "Default": "show ap summary; show wlan summary"
+      },
+      "recommendation": "Enable dynamic channel assignment (RRM/ARM) and enforce WPA2-Enterprise/WPA3 encryption on corporate SSIDs."
+    }
+  ]
+}
